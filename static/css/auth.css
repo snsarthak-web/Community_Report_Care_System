@@ -1,0 +1,74 @@
+/* Citizen login / registration: 50:50 cinematic split. Palette: charcoal + soft white + silver, one restrained slate-blue accent (matches the CRC logo blue). */
+@view-transition{navigation:auto}
+:root{--a-ink:#14181F;--a-mut:#667085;--a-line:#D8DDE5;--a-bg:#F7F8FA;--a-acc:#3B6FB6;--a-char:#0E1218;--a-r:32px}
+body.auth-page{background:var(--a-char);color:var(--a-ink);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.auth-page .page-bg{display:none}
+.auth-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:100vh;min-height:100dvh;position:relative}
+
+/* left: video */
+.auth-visual{position:relative;overflow:hidden;margin-right:calc(var(--a-r)*-1);min-height:100vh;min-height:100dvh;view-transition-name:auth-visual;background:#cfcac4}
+.auth-media{position:absolute;inset:0;overflow:hidden;--ox:42%}
+/* the clip has ~4% dark bars left/right (and a small mark in the right bar): scale(1.1) crops them; --ox keeps the bird's head in view at every aspect ratio */
+.eagle-video{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;object-position:var(--ox) 50%;transform:scale(1.1)}
+/* a small, subtle back button */
+.back-fixed{position:absolute;z-index:3;left:clamp(16px,3vw,32px);top:clamp(16px,3vw,28px);width:46px;height:46px;border-radius:50%;background:rgba(20,24,31,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;border:1px solid rgba(255,255,255,.28);display:grid;place-items:center;transition:transform .25s,background .25s}
+.back-fixed:hover{background:rgba(20,24,31,.85);transform:translateX(-2px);color:#fff}
+.back-fixed svg{width:42%;height:42%;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.back-fixed{position:absolute;z-index:3;left:clamp(16px,3vw,32px);top:clamp(16px,3vw,28px);width:46px;height:46px;border-radius:50%;background:rgba(20,24,31,.72);backdrop-filter:blur(10px);color:#fff;border:1px solid rgba(255,255,255,.22);place-items:center;transition:transform .25s,background .25s}
+.back-fixed:hover{background:rgba(20,24,31,.9);transform:translateX(-2px);color:#fff}
+.back-fixed{display:grid}
+.back-fixed:focus-visible{outline:3px solid #fff;outline-offset:3px}
+
+.auth-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(14,18,24,.18) 0,rgba(14,18,24,0) 24%,rgba(14,18,24,.5) 62%,rgba(14,18,24,.92) 100%)}
+.auth-copy{position:absolute;z-index:2;left:clamp(26px,4vw,64px);right:calc(var(--a-r) + clamp(20px,3vw,48px));bottom:clamp(36px,7vh,84px);color:#fff;animation:aUp .9s .15s both cubic-bezier(.22,.8,.24,1)}
+.auth-copy h2{font-size:clamp(34px,3.7vw,66px);line-height:1.04;font-weight:700;letter-spacing:-.035em;margin:0;color:#fff;text-shadow:0 2px 30px rgba(0,0,0,.35)}
+
+/* right: form panel (rounded outer edge overlaps the video by 32px, so the 50:50 split stays exact) */
+.auth-panel{position:relative;z-index:4;background:var(--a-bg);border-radius:var(--a-r) 0 0 var(--a-r);display:flex;align-items:center;justify-content:center;padding:clamp(24px,4vh,48px) clamp(24px,4.2vw,72px);box-shadow:-24px 0 60px rgba(0,0,0,.22);view-transition-name:auth-panel;max-height:100vh;max-height:100dvh;overflow-y:auto}
+.auth-panel-inner{width:100%;max-width:410px;margin:auto;transition:opacity .18s,transform .18s}
+.auth-panel-inner>*{animation:aUp .7s both cubic-bezier(.22,.8,.24,1)}
+.auth-panel-inner>:nth-child(2){animation-delay:.08s}.auth-panel-inner>:nth-child(3){animation-delay:.14s}
+.leaving .auth-panel-inner{opacity:0;transform:translateY(8px)}
+@keyframes aUp{from{opacity:0;transform:translateY(18px)}}
+.auth-brand{display:inline-block;margin-bottom:clamp(14px,3vh,28px)}.auth-brand img{display:block;height:clamp(58px,10vh,92px);width:auto}
+
+/* form skin: existing markup (.card.auth-card) is flattened - no card inside the panel */
+.auth-panel .auth-card{background:none;border:0;box-shadow:none;padding:0;margin:0;border-radius:0}
+.auth-panel .auth-card h2{font-size:clamp(26px,3vh + 8px,34px);font-weight:700;letter-spacing:-.03em;color:var(--a-ink);margin:0 0 6px}
+.auth-panel .mut{color:var(--a-mut)}.auth-panel p.mut{font-size:14.5px;line-height:1.5}
+.auth-panel label{font-size:13px;font-weight:600;color:var(--a-ink);margin:clamp(10px,1.8vh,16px) 0 6px}
+.auth-panel .form-control{height:48px;border-radius:12px;border:1px solid var(--a-line);background:#fff;padding:0 14px;font-size:15px;color:var(--a-ink);box-shadow:none;transition:border-color .2s,box-shadow .2s}
+.auth-panel .form-control::placeholder{color:#9AA3B2}
+.auth-panel .form-control:hover{border-color:#BCC4D0}
+.auth-panel .form-control:focus{border-color:var(--a-acc);box-shadow:0 0 0 4px rgba(59,111,182,.15)}
+.auth-panel .form-control-lg{height:54px}
+.auth-panel .input-group{flex-wrap:nowrap}.auth-panel .input-group>.form-control{border-radius:12px 0 0 12px}.auth-panel .input-group>.btn,.auth-panel .input-group-text{border:1px solid var(--a-line);background:#fff;color:var(--a-mut);border-radius:0 12px 12px 0;height:48px;padding:0 14px;border-left:0}
+.auth-panel .input-group-text{border-radius:12px 0 0 12px;border-right:0;border-left:1px solid var(--a-line);font-weight:600;color:var(--a-ink)}.auth-panel .input-group-text+.form-control{border-radius:0 12px 12px 0}
+.auth-panel .input-group>.btn:hover{background:#F1F3F6}
+.auth-panel .btn-primary{height:50px;border-radius:12px;background:var(--a-ink);border:1px solid var(--a-ink);color:#fff;font-weight:600;font-size:15px;letter-spacing:.01em;box-shadow:0 10px 24px rgba(20,24,31,.22);transition:background .2s,transform .2s,box-shadow .2s;display:flex;align-items:center;justify-content:center}
+.auth-panel .btn-primary:hover:not(:disabled){background:#2A3340;border-color:#2A3340;transform:translateY(-2px);box-shadow:0 16px 30px rgba(20,24,31,.28)}
+.auth-panel .btn-primary:disabled{opacity:.55}
+.auth-panel a:not(.btn):not(.auth-brand){color:var(--a-acc);font-weight:500;transition:color .2s}.auth-panel a:not(.btn):hover{color:#24518F;text-decoration:underline;text-underline-offset:3px}
+.auth-panel .c{margin-top:16px}.auth-panel p.c.sm{margin-top:10px}
+.auth-panel .tabs2{background:#ECEFF3;border-radius:12px;padding:4px;margin:18px 0 4px}.auth-panel .tabs2 a{border-radius:9px;padding:9px;font-size:13.5px;font-weight:600;color:var(--a-mut)}.auth-panel .tabs2 a:hover{text-decoration:none;color:var(--a-ink)}.auth-panel .tabs2 a.on{background:#fff;color:var(--a-ink);box-shadow:0 1px 3px rgba(20,24,31,.12)}
+.auth-panel em{color:var(--a-mut)}
+/* OTP screen */
+.auth-panel .otpbox{background:#fff;border:1px solid var(--a-line);border-radius:16px}.auth-panel .otpbox small{color:var(--a-mut)}
+.auth-panel .digits span{border:1px solid var(--a-line);color:var(--a-ink);border-radius:10px}.auth-panel .meter{background:#E5E8EE}.auth-panel .meter i{background:var(--a-acc)}
+
+/* tablet: still two sections, video crop moves toward the eagle's head */
+@media(max-width:991px){.auth-panel{padding-inline:28px}}
+/* mobile: short eagle band on top, form directly below */
+@media(max-width:767px){
+ .auth-split{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr}
+ .auth-visual{margin:0;min-height:0;height:clamp(250px,34svh,310px)}
+ 
+ .auth-copy{right:24px;bottom:calc(var(--a-r) + 22px)}.auth-copy h2{font-size:clamp(28px,8vw,38px)}
+ .auth-panel{border-radius:var(--a-r) var(--a-r) 0 0;margin-top:calc(var(--a-r)*-1);box-shadow:0 -18px 40px rgba(0,0,0,.2);align-items:flex-start;max-height:none;overflow:visible;padding:30px 22px 40px}
+ .auth-panel-inner{max-width:480px}.auth-brand img{height:64px}
+}
+@media(max-height:800px) and (min-width:768px){.auth-brand{margin-bottom:10px}.auth-brand img{height:56px}.auth-panel .auth-card h2{font-size:28px}.auth-panel label{margin:9px 0 5px}.auth-panel .form-control,.auth-panel .input-group>.btn,.auth-panel .input-group-text{height:44px}.auth-panel .btn-primary{height:46px}.auth-panel .tabs2{margin-top:12px}.auth-panel .c{margin-top:12px}.auth-panel p.mut{margin-bottom:6px}}
+@media(max-height:680px) and (min-width:768px){.auth-brand img{height:44px}.auth-panel label{margin:6px 0 4px}.auth-panel .form-control,.auth-panel .input-group>.btn,.auth-panel .input-group-text{height:40px}.auth-panel .btn-primary{height:42px}.auth-panel{padding-block:16px}}
+@media(min-width:1700px){.auth-panel-inner{max-width:450px}.auth-panel .form-control{height:52px;font-size:16px}.auth-panel .btn-primary{height:54px;font-size:16px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+@media(prefers-reduced-motion:reduce){@view-transition{navigation:none}}

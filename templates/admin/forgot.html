@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% set bg = 'bg-auth.jpg' %}
+{% block body %}
+<div class="auth one"><div class="card auth-card adm-card"><div class="text-center"><div class="adm-badge">🔑</div><h2>Reset admin password</h2></div>
+  <p class="mut mt-3">For security, administrator passwords are never reset by email. Ask another administrator to set a new password, or (system owner) change <code>ADMIN_PASSWORD</code> in the server's <code>.env</code> file and create a new admin account.</p>
+  <a class="btn btn-primary w-100" href="{{ url_for('admin.login') }}">← Back to Admin Login</a></div></div>
+{% endblock %}

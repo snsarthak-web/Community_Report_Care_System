@@ -1,0 +1,21 @@
+{% extends "app_base.html" %}
+{% from "citizen/_ui.html" import ico, rc_hero %}
+{% set bg = 'bg-dashboard.jpg' %}
+{% block heading %}Notifications{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/report.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}"><script>document.documentElement.classList.add('js')</script>{% endblock %}
+{% block hero %}<div class="aurora" aria-hidden="true"><img class="aur-img" src="{{ url_for('static', filename='img/bg-notifications.jpg') }}" alt="" onerror="this.remove()"><i></i><i></i><i></i></div>{{ rc_hero('Notifications', 'Updates on your complaints, as they happen.', 'Stay informed', slim=True) }}{% endblock %}
+{% block content %}
+<div class="nf-top"><span class="nf-count {{ 'zero' if not unread }}"><i></i>{{ unread }} unread</span>
+<form method="post" action="{{ url_for('citizen.read_all') }}">{{ csrf_input() }}<button class="btn btn-sm btn-outline-primary nf-read" {{ 'disabled' if not unread }}>Mark all as read</button></form></div>
+{% if rows %}{% set ns = namespace(day='', i=0) %}
+{% for n in rows %}{% set lab = n.created_at|daylabel %}
+  {% if lab != ns.day %}{% if ns.day %}</div>{% endif %}<div class="nf-day">{{ lab }}</div><div class="nf-list">{% set ns.day = lab %}{% endif %}
+  {% set m = n.message|lower %}{% set kind = 'ok' if 'resolved' in m else ('wk' if ('progress' in m or 'assigned' in m or 'review' in m) else ('nw' if 'submitted' in m else '')) %}
+  <a class="nf {{ '' if n.is_read else 'unread' }}" style="--i:{{ ns.i if ns.i < 12 else 12 }}" href="{{ url_for('citizen.open_notification', nid=n.id) }}"><span class="ti {{ kind }}">{{ ico({'ok':'check','wk':'loader','nw':'list'}.get(kind, 'bell')) }}</span><div class="tx"><div>{{ n.message }}</div><small><span>{{ n.created_at|ago }}</span><span aria-hidden="true">·</span><span title="{{ n.created_at|dt }}">{{ n.created_at|tm }}</span>{% if not n.is_read %}<span class="sr-only">Unread</span>{% endif %}</small></div><span class="go-i">{{ ico('arrow') }}</span></a>
+  {% set ns.i = ns.i + 1 %}
+{% endfor %}</div>
+{% else %}
+<div class="nf-empty"><span class="big">{{ ico('bell') }}</span><h3>No notifications yet</h3><p>When your complaints are reviewed, assigned or resolved, you will see it here.</p><a class="btn btn-primary hbtn pri" href="{{ url_for('citizen.report_choose') }}">Report an Issue {{ ico('arrow') }}</a></div>
+{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/pages.js') }}" defer></script>{% endblock %}

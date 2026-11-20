@@ -1,0 +1,43 @@
+{
+  "own_model": {
+    "Pothole": {
+      "precision": 0.796,
+      "recall": 0.791,
+      "tp": 261,
+      "fp": 67,
+      "fn": 69,
+      "n": 328
+    }
+  },
+  "civicresolve": {
+    "Pothole": {
+      "precision": 0.805,
+      "recall": 0.664,
+      "tp": 219,
+      "fp": 53,
+      "fn": 111,
+      "n": 272
+    }
+  },
+  "streetlight": {
+    "Pothole": {
+      "precision": 0.746,
+      "recall": 0.721,
+      "tp": 238,
+      "fp": 81,
+      "fn": 92,
+      "n": 319
+    }
+  },
+  "civic_guardian": {
+    "Pothole": {
+      "precision": 0.83,
+      "recall": 0.606,
+      "tp": 200,
+      "fp": 41,
+      "fn": 130,
+      "n": 241
+    }
+  },
+  "_generated": "2026-11-14 03:04"
+}

@@ -1,0 +1,13 @@
+{% extends "auth_base.html" %}
+{% block form %}
+<form class="card auth-card" method="post">{{ csrf_input() }}<h2>Verify OTP</h2><p class="mut">Code sent to +91 {{ phone }}</p>
+  <div class="otpbox" id="otpbox"><small>Your verification code</small><div class="digits">{% for ch in code %}<span>{{ ch }}</span>{% endfor %}</div><div class="meter"><i id="meter"></i></div><small id="left">Expires in {{ seconds }}s</small></div>
+  <input class="form-control form-control-lg text-center" style="letter-spacing:.3em;font-weight:700" name="otp" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit code" required autofocus>
+  <button class="btn btn-primary w-100 mt-3" id="go">Verify &amp; Login →</button><a class="c mut" href="{{ url_for('auth.otp_login') }}">Change number / resend</a></form>
+{% endblock %}
+{% block scripts %}<script>
+let s = {{ seconds }}; const total = {{ config.OTP_SECONDS }}, m = document.getElementById('meter'), l = document.getElementById('left');
+m.style.width = (s / total * 100) + '%';
+const t = setInterval(() => { s--; m.style.width = Math.max(0, s / total * 100) + '%'; l.textContent = 'Expires in ' + Math.max(0, s) + 's';
+  if (s <= 0) { clearInterval(t); document.getElementById('otpbox').classList.add('dead'); l.textContent = 'Code expired. Request a new one.'; document.getElementById('go').disabled = true; } }, 1000);
+</script>{% endblock %}

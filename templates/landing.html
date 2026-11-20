@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+<script>document.documentElement.classList.add('js')</script>{% endblock %}
+{% block body_class %}lp-page{% endblock %}
+
+{# category -> (icon, short description). The list itself still comes from config.categories, so adding a category there still works. #}
+{% set cat_meta = {
+  'Pothole':('road','Holes and cracks that damage vehicles and endanger riders.'),
+  'Garbage':('trash','Overflowing bins and illegal dumping in your area.'),
+  'Drainage':('grid','Blocked or broken drains and open sewers.'),
+  'Waterlogging':('waves','Streets that stay flooded after the rain.'),
+  'Streetlight':('bulb','Dark roads from broken or missing street lights.'),
+  'Road Damage':('cone','Broken surfaces, collapsed edges and damaged footpaths.'),
+  'Water Leakage':('drop','Leaking pipes and wasted drinking water.'),
+  'Open Manhole':('manhole','Uncovered or missing manhole covers on roads.'),
+  'Broken Sign':('sign','Damaged, fallen or missing road signs.'),
+  'Illegal Parking':('car','Vehicles blocking roads, footpaths or access.'),
+  'Fallen Tree':('tree','Trees or branches blocking the way.'),
+  'Vandalism':('spray','Graffiti and damage to public property.'),
+  'Dead Animal':('paw','Carcasses that need safe removal.'),
+  'Damaged Electrical Wires':('bolt','Hanging, exposed or sparking wires.'),
+  'Other':('dots','Anything else that affects your neighbourhood.')} %}
+
+{% macro stat(val, label, icon, suffix='', d=0) %}
+<div class="lp-stat rv" style="--d:{{ d }}"><svg class="ic" aria-hidden="true"><use href="#i-{{ icon }}"/></svg>
+  {% if val is none %}<b class="na" title="Currently unavailable">—</b><span class="sr-only">Currently unavailable</span>
+  {% else %}<span class="sr-only">{{ val }}{{ suffix }}</span><b aria-hidden="true" data-count="{{ val }}" data-suffix="{{ suffix }}">{{ val }}{{ suffix }}</b>{% endif %}
+  <span class="l">{{ label }}</span></div>
+{% endmacro %}
+
+{% block body %}
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+<symbol id="i-ai" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="3"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/><path d="M9.5 15 12 9l2.5 6M10.4 13h3.2"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="m22 4-10 10-3-3"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></symbol>
+<symbol id="i-road" viewBox="0 0 24 24"><path d="m4 21 4-18M20 21 16 3M12 5v3M12 11v3M12 17v3"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></symbol>
+<symbol id="i-waves" viewBox="0 0 24 24"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.500 5c2.600 0 2.400 2 5 2 2.500 0 2.500-2 5-2 1.300 0 1.900.5 2.500 1M2 12c.6.5 1.200 1 2.500 1 2.500 0 2.500-2 5-2 2.600 0 2.400 2 5 2 2.500 0 2.500-2 5-2 1.300 0 1.900.5 2.500 1M2 18c.6.5 1.200 1 2.500 1 2.500 0 2.500-2 5-2 2.600 0 2.400 2 5 2 2.500 0 2.500-2 5-2 1.300 0 1.900.5 2.500 1"/></symbol>
+<symbol id="i-bulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.700 1.500-2.500 1-.9 1.500-2.200 1.500-3.500A6 6 0 0 0 6 8c0 1 .2 2.200 1.500 3.500.7.7 1.300 1.500 1.500 2.500M9 18h6M10 22h4"/></symbol>
+<symbol id="i-cone" viewBox="0 0 24 24"><path d="M9 3h6l5 18H4zM7 12h10M5.500 17h13"/></symbol>
+<symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.900-3-5.500S12.500 5 12 2.500C11.500 5 10 7.400 8 9c-2 1.600-3 3.500-3 6a7 7 0 0 0 7 7z"/></symbol>
+<symbol id="i-manhole" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 7v10M7 12h10"/></symbol>
+<symbol id="i-sign" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="9" rx="2"/><path d="M12 12v10M8 22h8"/></symbol>
+<symbol id="i-car" viewBox="0 0 24 24"><path d="M3 13l2-6h14l2 6v4H3z"/><circle cx="7.5" cy="17" r="1.6"/><circle cx="16.5" cy="17" r="1.6"/></symbol>
+<symbol id="i-tree" viewBox="0 0 24 24"><path d="M12 22v-6"/><path d="M12 16c-4 0-7-2.5-7-6a7 7 0 0 1 14 0c0 3.500-3 6-7 6z"/></symbol>
+<symbol id="i-spray" viewBox="0 0 24 24"><rect x="8" y="9" width="8" height="12" rx="2"/><path d="M10 9V6h4v3M11 3h2M4 6h.01M4 9h.01M4 3h.01"/></symbol>
+<symbol id="i-paw" viewBox="0 0 24 24"><circle cx="6" cy="10" r="2"/><circle cx="10" cy="6" r="2"/><circle cx="14" cy="6" r="2"/><circle cx="18" cy="10" r="2"/><path d="M8 18c0-3 2-5 4-5s4 2 4 5c0 2-2 3-4 3s-4-1-4-3z"/></symbol>
+<symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></symbol>
+<symbol id="i-dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.500"/><circle cx="12" cy="12" r="1.500"/><circle cx="19" cy="12" r="1.500"/></symbol>
+<symbol id="i-trend" viewBox="0 0 24 24"><path d="m22 7-8.500 8.500-5-5L2 17M16 7h6v6"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.300 21a1.940 1.940 0 0 0 3.400 0"/></symbol>
+<symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.700 6.300a1 1 0 0 0 0 1.400l1.600 1.600a1 1 0 0 0 1.400 0l3.770-3.770a6 6 0 0 1-7.940 7.940l-6.910 6.910a2.120 2.120 0 0 1-3-3l6.910-6.910a6 6 0 0 1 7.940-7.940z"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.870M16 3.130a4 4 0 0 1 0 7.750"/></symbol>
+<symbol id="i-flag" viewBox="0 0 24 24"><path d="M4 22V4M4 4h13l-2 4 2 4H4"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></symbol>
+<symbol id="i-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m22 7-10 7L2 7"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+</defs></svg>
+
+<div class="lp-bg" aria-hidden="true">
+  <video autoplay muted loop playsinline preload="auto" poster="{{ url_for('static', filename='img/home-poster.jpg') }}" tabindex="-1"><source src="{{ url_for('static', filename='Videos/city-home.mp4') }}" type="video/mp4"></video>
+  <div class="lp-glow"></div><div class="lp-shade"></div><div class="lp-dim" id="lpDim"></div>
+</div>
+
+<div class="lp">
+<nav class="lp-nav" id="lpNav" aria-label="Main navigation">
+  <a class="lp-brand" href="/" aria-label="Community Report Care home"><span class="lp-mark"><img src="{{ url_for('static', filename='img/logo-mark.png') }}" alt="" onerror="this.replaceWith(document.createTextNode('CRC'))"></span><span><b>Community Report Care</b><small>Report · Resolve · Build a Better City</small></span></a>
+  <button class="lp-burger" id="lpBurger" aria-label="Open menu" aria-expanded="false" aria-controls="lpLinks" type="button">☰</button>
+  <div id="lpLinks"><a href="#how">How it works</a><a href="#categories">Categories</a><a href="#about">About</a><a href="#contact">Contact</a><a class="lp-login" href="{{ url_for('auth.login') }}">Login</a><a class="lp-reg" href="{{ url_for('auth.register') }}">Register</a></div>
+</nav>
+
+<header class="lp-hero" id="home">
+  <div class="lp-hero-in" id="lpHeroIn">
+    <span class="lp-badge rv" style="--d:0"><i></i>SMART CITY • COMMUNITY POWERED</span>
+    <h1 data-split>Report. Care.<em>Build Better Together.</em></h1>
+    <p class="lead rv" style="--d:5">Your voice can make your city better. Report civic problems, track progress and help your community create lasting change.</p>
+    <div class="lp-cta rv" style="--d:7">
+      <a class="lp-btn pri" href="{{ url_for('auth.register') }}">Report a Problem <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      <a class="lp-btn sec" href="{{ url_for('citizen.track') }}">Track My Complaint</a></div>
+    <ul class="lp-trust rv" style="--d:9"><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Unique complaint tracking</li><li><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>Community-powered priorities</li><li><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>Verified resolutions</li></ul>
+  </div>
+  <a class="lp-scroll" href="#story" aria-label="Scroll down"><span>Scroll</span><i></i></a>
+</header>
+
+<section class="lp-sec lp-statement" id="story"><p data-scrub>Every pothole, every broken streetlight, every flooded road is a story your city needs to hear. <span class="hl">Report it. Track it. Watch it get fixed.</span></p></section>
+
+<section class="lp-sec lp-stats" aria-label="Platform statistics"><div class="lp-stats-in glass">
+  {{ stat(stats.total, 'Issues reported', 'flag', '', 0) }}
+  {{ stat(stats.solved, 'Issues resolved', 'check', '', 1) }}
+  {{ stat(stats.citizens, 'Registered citizens', 'users', '', 2) }}
+  {{ stat(stats.rate if stats.total else none, 'Resolution rate', 'trend', '%', 3) }}
+</div></section>
+
+<section class="lp-sec" id="how"><div class="lp-how-grid">
+  <div class="lp-how-head"><span class="lp-eyebrow rv">Simple by design</span><h2 class="lp-h2" data-split>How It Works</h2><p class="lp-sub rv" style="--d:3">From reporting a problem to seeing a real solution.</p></div>
+  <div class="lp-tl" id="lpTl"><div class="lp-tl-line"><i></i></div>
+    {% set steps = [('camera','Capture the Issue','Take a photo or select one from your gallery.'),('ai','AI-Powered Analysis','AI suggests the issue category. Review and confirm it.'),('pin','Confirm Location','Use GPS or select a location on the map.'),('shield','Track Resolution','Follow updates, view repair evidence and confirm the fix.')] %}
+    {% for ic, t, d in steps %}<article class="lp-step glass"><span class="n">{{ loop.index }}</span><div class="si"><svg class="ic" aria-hidden="true"><use href="#i-{{ ic }}"/></svg></div><h3>{{ t }}</h3><p>{{ d }}</p>
+      <div class="shot"><img src="{{ url_for('static', filename='img/step-' ~ loop.index ~ '.jpg') }}" alt="" loading="lazy" onerror="this.parentNode.remove()"></div></article>{% endfor %}
+  </div></div></section>
+
+<section class="lp-sec" id="categories"><div class="lp-cat-head"><span class="lp-eyebrow rv">{{ config.CATEGORIES|length }} everyday problems</span><h2 class="lp-h2" data-split>What Can You Report?</h2><p class="lp-sub rv" style="--d:3">If it affects your street, your water or your safety, it belongs here.</p></div>
+  <div class="lp-cats">{% for c in config.CATEGORIES %}{% set m = cat_meta.get(c, ('dots','Report this kind of problem in your area.')) %}
+    <div class="lp-cat rv" style="--d:{{ loop.index0 % 4 }}"><img class="photo" src="{{ url_for('static', filename='img/cat-' ~ (c|lower|replace(' ','-')) ~ '.jpg') }}" alt="" loading="lazy" onerror="this.remove()"><span class="fade"></span>
+      <span class="ci"><svg class="ic" aria-hidden="true"><use href="#i-{{ m[0] }}"/></svg></span><h3>{{ c }}</h3><p>{{ m[1] }}</p></div>{% endfor %}</div></section>
+
+<section class="lp-sec"><div class="lp-cat-head" style="text-align:center"><span class="lp-eyebrow rv">Why the community uses it</span><h2 class="lp-h2" data-split>A Better City Starts With Us</h2></div>
+  <div class="lp-ben">
+    <article class="lp-card glass rv" data-n="01" style="--d:0"><div class="bi"><svg class="ic" aria-hidden="true"><use href="#i-trend"/></svg></div><h3>Community Priority</h3><p>When more neighbours report the same issue, its priority increases.</p></article>
+    <article class="lp-card glass rv" data-n="02" style="--d:1"><div class="bi"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg></div><h3>Stay Informed</h3><p>Receive updates as your complaint moves from submission to resolution.</p></article>
+    <article class="lp-card glass rv" data-n="03" style="--d:2"><div class="bi"><svg class="ic" aria-hidden="true"><use href="#i-wrench"/></svg></div><h3>Verified Repairs</h3><p>Review before-and-after photos and confirm whether the issue is fixed.</p></article>
+  </div></section>
+
+<section class="lp-sec"><div class="lp-cta-box rv"><h2 data-split>Your City. Your Voice. Your Impact.</h2><p>Every report brings us one step closer to a cleaner, safer and better-connected community.</p>
+  <a class="lp-btn pri" href="{{ url_for('citizen.report_choose') }}">Report a Problem <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></section>
+
+<section class="lp-sec"><div class="lp-info">
+  <div class="glass rv" id="about"><span class="lp-eyebrow">Who we are</span><h2>About Us</h2><p>Community Report Care connects citizens and municipal authorities. The more neighbours report the same problem, the higher its priority, so the issues that affect most people get fixed first.</p></div>
+  <div class="glass rv" id="contact" style="--d:2"><span class="lp-eyebrow">Get in touch</span><h2>Contact</h2><div class="ct"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg><p>Department of Housing and Urban Development<br>support@crc.local</p></div></div>
+</div></section>
+
+<footer class="lp-foot"><div class="lp-foot-in">
+  <div><a class="lp-brand" href="/" style="padding:0"><span class="lp-mark"><img src="{{ url_for('static', filename='img/logo-mark.png') }}" alt="" onerror="this.replaceWith(document.createTextNode('CRC'))"></span><span><b>Community Report Care</b><small>Report · Resolve · Build a Better City</small></span></a><p>Report civic problems. Help build a better community.</p></div>
+  <div><h4>Quick Links</h4><a href="#home">Home</a><a href="#about">About Us</a><a href="#how">How It Works</a><a href="#contact">Contact</a></div>
+  <div><h4>Citizen Services</h4><a href="{{ url_for('citizen.report_choose') }}">Report an Issue</a><a href="{{ url_for('citizen.track') }}">Track My Complaint</a><a href="{{ url_for('auth.login') }}">Login</a><a href="{{ url_for('auth.register') }}">Register</a></div>
+  <div><h4>Government / Administration</h4><p style="margin:0 0 4px">Administrator Access<br><small>Authorized personnel only</small></p><a class="adm" href="{{ url_for('admin.login') }}"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg>Admin Login</a></div>
+</div><div class="lp-copy"><span>© {{ COPYRIGHT_YEAR or now_local().year }} {{ COMPANY_NAME }}. All rights reserved.</span></div></footer>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/landing.js') }}" defer></script>{% endblock %}

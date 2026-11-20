@@ -1,0 +1,11 @@
+{% extends "app_base.html" %}
+{% set bg = 'bg-admin.jpg' %}
+{% block heading %}Departments{% endblock %}
+{% block content %}
+<div class="row g-3"><div class="col-lg-8"><section class="card"><div class="table-responsive"><table class="tbl"><thead><tr><th>Department</th><th>Total</th><th>Open</th><th>Rename</th><th></th></tr></thead><tbody>
+{% for r in rows %}<tr><td><b>{{ r.d.name }}</b></td><td>{{ r.total }}</td><td>{{ r.open }}</td>
+<td><form method="post" class="d-flex gap-2">{{ csrf_input() }}<input type="hidden" name="action" value="rename"><input type="hidden" name="id" value="{{ r.d.id }}"><input class="form-control form-control-sm" name="name" value="{{ r.d.name }}" maxlength="80"><button class="btn btn-sm btn-outline-primary">Save</button></form></td>
+<td><form method="post" onsubmit="return confirm('Delete this department?')">{{ csrf_input() }}<input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="{{ r.d.id }}"><button class="btn btn-sm btn-outline-danger" {{ 'disabled' if r.total }}>Delete</button></form></td></tr>
+{% endfor %}<tr><td><i class="mut">Unassigned</i></td><td>{{ unassigned }}</td><td colspan="3"><a href="{{ url_for('admin.complaints') }}">Open complaints list to assign them</a></td></tr></tbody></table></div></section></div>
+<div class="col-lg-4"><form class="card" method="post">{{ csrf_input() }}<input type="hidden" name="action" value="add"><h3>Add department</h3><label>Name</label><input class="form-control" name="name" maxlength="80" required placeholder="e.g. Parks &amp; Gardens"><button class="btn btn-primary mt-3 w-100">Add</button></form></div></div>
+{% endblock %}

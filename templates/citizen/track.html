@@ -1,0 +1,19 @@
+{% extends "app_base.html" %}
+{% from "citizen/_ui.html" import ico, rc_hero %}
+{% set bg = 'bg-dashboard.jpg' %}
+{% block heading %}Track Complaint{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/report.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}"><script>document.documentElement.classList.add('js')</script>{% endblock %}
+{% block hero %}<div class="aurora" aria-hidden="true"><img class="aur-img" src="{{ url_for('static', filename='img/bg-track.jpg') }}" alt="" onerror="this.remove()"><i></i><i></i><i></i></div>{{ rc_hero('Track Complaint', 'Follow your report from submission to resolution.', 'Live status', slim=True) }}{% endblock %}
+{% block content %}
+<div class="tk">
+  <form class="card trackbox" method="post">{{ csrf_input() }}<h3>Enter your tracking ID</h3><p class="mut">Example: CRC-{{ now_local().year }}-00001</p>
+  <div class="locrow"><div class="fld">{{ ico('search') }}<input class="form-control" name="id" placeholder="CRC-{{ now_local().year }}-00001" required autocomplete="off" autocapitalize="characters" spellcheck="false"></div><button class="btn btn-primary">Track {{ ico('arrow') }}</button></div></form>
+  <div class="tk-steps">
+    <div class="tk-step rv2" style="--d:0"><span class="ti">{{ ico('search') }}</span><div><b>Enter your ID</b><small>Find it on your complaint page or in My Complaints.</small></div></div>
+    <div class="tk-step rv2" style="--d:1"><span class="ti">{{ ico('clock') }}</span><div><b>See live status</b><small>From submission to resolution, step by step.</small></div></div>
+    <div class="tk-step rv2" style="--d:2"><span class="ti">{{ ico('check') }}</span><div><b>Confirm the fix</b><small>Review the repair and tell us if it is solved.</small></div></div>
+  </div>
+  <p class="tk-more"><a class="go" href="{{ url_for('citizen.complaints') }}">View all my complaints {{ ico('arrow') }}</a></p>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/pages.js') }}" defer></script>{% endblock %}

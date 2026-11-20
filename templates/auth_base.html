@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{# Citizen auth shell (login, register, OTP, forgot): cinematic eagle video on the left 50%, minimal form panel on the right 50%.
+   eagle.mp4 is a clean 16:9 clip with thin dark bars on both sides; auth.css crops them with a small zoom + object-position (the file is untouched). #}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block body %}
+<main class="auth-split">
+  <section class="auth-visual" id="authVisual" aria-label="Community Report Care">
+    <div class="auth-media"><video class="eagle-video" id="eagleVideo" autoplay muted loop playsinline preload="auto" poster="{{ url_for('static', filename='img/eagle-poster.jpg') }}" aria-hidden="true" tabindex="-1"><source src="{{ url_for('static', filename='Videos/eagle.mp4') }}" type="video/mp4"></video></div>
+    <div class="auth-shade" aria-hidden="true"></div>
+    <a class="back-fixed" id="backFixed" href="{{ url_for('auth.landing') }}" aria-label="Back to home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></a>
+    <div class="auth-copy">
+      <h2>Find Signal to<br>Action Instantly</h2>
+    </div>
+  </section>
+  <section class="auth-panel">
+    <div class="auth-panel-inner">
+      <a class="auth-brand" href="{{ url_for('auth.landing') }}" aria-label="Community Report Care home"><img src="{{ url_for('static', filename='img/logo.png') }}" alt="Community Report Care" onerror="this.replaceWith(document.createTextNode('Community Report Care'))"></a>
+      {% block form %}{% endblock %}
+    </div>
+  </section>
+</main>
+<script src="{{ url_for('static', filename='js/auth.js') }}" defer></script>
+{% endblock %}

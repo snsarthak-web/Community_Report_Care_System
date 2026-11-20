@@ -1,0 +1,11 @@
+{% extends "app_base.html" %}
+{% set bg = 'bg-admin.jpg' %}
+{% block heading %}Community Votes{% endblock %}
+{% block content %}
+<p class="mut">Open complaints ranked by citizen support. "Nearby similar" lists other complaints of the same category within about 400 m, which may be duplicates. Nothing is merged automatically.</p>
+<section class="card"><div class="table-responsive"><table class="tbl"><thead><tr><th>Tracking ID</th><th>Category</th><th>Location</th><th>Supporters</th><th>Priority</th><th>Status</th><th>Nearby similar</th></tr></thead><tbody>
+{% for g in groups %}{% set r = g.c %}<tr><td><a class="tid" href="{{ url_for('admin.detail', tid=r.tracking_id) }}">{{ r.tracking_id }}</a></td><td>{{ r.category }}</td><td>{{ r.location_text or '-' }}</td><td>👥 <b>{{ r.vote_count }}</b></td>
+<td><span class="pill pr-{{ r.priority|lower }}">{{ r.priority }}</span></td><td><span class="pill st-{{ r.status|lower|replace(' ','') }}">{{ r.status }}</span></td>
+<td>{% for t in g.similar %}<a class="tid" href="{{ url_for('admin.detail', tid=t) }}">{{ t }}</a>{% if not loop.last %}, {% endif %}{% else %}<span class="mut">-</span>{% endfor %}</td></tr>
+{% else %}<tr><td colspan="7" class="empty">No open complaints.</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

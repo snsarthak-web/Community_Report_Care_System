@@ -1,0 +1,21 @@
+{% extends "app_base.html" %}
+{% set bg = 'bg-admin.jpg' %}
+{% block heading %}All Complaints{% endblock %}
+{% block content %}
+<form class="filters card" method="get" style="padding:14px">
+  <input class="form-control" name="q" placeholder="Tracking ID or place" value="{{ request.args.get('q','') }}">
+  <input class="form-control" name="place" placeholder="Location contains…" value="{{ request.args.get('place','') }}">
+  <select class="form-select" name="status"><option value="">All status</option>{% for s in STATUSES %}<option {{ 'selected' if request.args.get('status') == s }}>{{ s }}</option>{% endfor %}</select>
+  <select class="form-select" name="category"><option value="">All categories</option>{% for c in config.CATEGORIES %}<option {{ 'selected' if request.args.get('category') == c }}>{{ c }}</option>{% endfor %}</select>
+  <select class="form-select" name="priority"><option value="">All priority</option>{% for p in ('Critical','High','Medium','Low') %}<option {{ 'selected' if request.args.get('priority') == p }}>{{ p }}</option>{% endfor %}</select>
+  <select class="form-select" name="department_id"><option value="">All departments</option>{% for d in depts %}<option value="{{ d.id }}" {{ 'selected' if request.args.get('department_id') == d.id|string }}>{{ d.name }}</option>{% endfor %}</select>
+  <input class="form-control" type="date" name="from" value="{{ request.args.get('from','') }}" aria-label="From date"><input class="form-control" type="date" name="to" value="{{ request.args.get('to','') }}" aria-label="To date">
+  <button class="btn btn-primary">Filter</button><a class="btn btn-light border" href="{{ url_for('admin.complaints') }}">Clear</a>
+  <a class="btn btn-outline-primary ms-auto" href="{{ url_for('admin.export', **request.args) }}">⬇ Export CSV</a></form>
+<p class="mut sm">{{ rows|length }} complaints</p>
+<section class="card"><div class="table-responsive"><table class="tbl"><thead><tr><th>Tracking ID</th><th>Category</th><th>Location</th><th>Votes</th><th>Priority</th><th>Status</th><th>Department / Officer</th><th>Date</th></tr></thead><tbody>
+{% for r in rows %}<tr><td><a class="tid" href="{{ url_for('admin.detail', tid=r.tracking_id) }}">{{ r.tracking_id }}</a>{% if r.videos %} <span class="pill st-assigned" title="Has video evidence">Video</span>{% endif %}</td><td>{{ r.category }}{% if r.reporting_method == 'ai' %} 🤖{% endif %}</td><td>{{ r.location_text or '-' }}</td><td>👥 {{ r.vote_count }}</td>
+<td><span class="pill pr-{{ r.priority|lower }}">{{ r.priority }}</span></td><td><span class="pill st-{{ r.status|lower|replace(' ','') }}">{{ r.status }}</span>{% if r.citizen_feedback == 'disputed' %} <span title="Citizen disputed the fix">⚠️</span>{% endif %}</td>
+<td>{{ r.department.name if r.department else '-' }}{% if r.assigned_officer %}<br><small class="mut">{{ r.assigned_officer }}</small>{% endif %}</td><td>{{ r.created_at|d }}</td></tr>
+{% else %}<tr><td colspan="8" class="empty">No complaints match these filters.</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

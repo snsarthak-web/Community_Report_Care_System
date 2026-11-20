@@ -1,0 +1,15 @@
+{% extends "app_base.html" %}
+{% from "citizen/_ui.html" import ico, slot, rc_hero %}
+{% set bg = 'bg-report.jpg' %}
+{% block heading %}Report an Issue{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/report.css') }}">{% endblock %}
+{% block hero %}{{ rc_hero('Report an Issue', 'How would you like to report?', 'Your voice. Your city.') }}{% endblock %}
+{% block content %}
+<div class="choose">
+  {# Image slots (optional): drop report-ai.png / report-manual.png into static/img/ to fill the whole art area; icons/camera.png, icons/ai.png, icons/edit.png, icons/pin.png replace the icons. #}
+  <a class="card pick" href="{{ url_for('citizen.report', mode='ai') }}"><div class="pick-art ai"><img src="{{ url_for('static', filename='img/report-ai.png') }}" alt="" onerror="this.remove()"><div class="art-ico">{{ slot('camera') }}<em class="chip">{{ slot('ai') }}</em></div></div>
+    <h3>AI-Based Reporting</h3><p>Take or upload a photo. AI suggests the category and you confirm or correct it.</p><span class="btn btn-primary">Start {{ ico('arrow') }}</span></a>
+  <a class="card pick" href="{{ url_for('citizen.report', mode='manual') }}"><div class="pick-art manual"><img src="{{ url_for('static', filename='img/report-manual.png') }}" alt="" onerror="this.remove()"><div class="art-ico">{{ slot('edit') }}<em class="chip">{{ slot('pin') }}</em></div></div>
+    <h3>Manual Reporting</h3><p>Choose the category yourself. Photo is optional. Works without AI.</p><span class="btn btn-outline-primary">Start {{ ico('arrow') }}</span></a>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "app_base.html" %}
+{% set bg = 'bg-dashboard.jpg' %}
+{% block heading %}Map View{% endblock %}
+{% block head %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">{% endblock %}
+{% block content %}
+<section class="card"><p class="mut">Your complaints and the ones you support. Click a pin for details.</p><div id="map" class="bigmap"></div>{% if not points %}<p class="empty">No complaints with a map location yet.</p>{% endif %}</section>
+{% endblock %}
+{% block scripts %}<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const pts = {{ points|tojson }}, base = "{{ url_for('citizen.detail', tid='__') }}";
+const map = L.map('map').setView([20.59, 78.96], 5);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '© OpenStreetMap'}).addTo(map);
+const g = [];
+pts.forEach(p => { const m = L.marker([p.latitude, p.longitude]).addTo(map); g.push([p.latitude, p.longitude]);
+  const a = document.createElement('a'); a.href = base.replace('__', p.tracking_id); a.textContent = p.tracking_id;
+  const d = document.createElement('div'); d.append(a, document.createElement('br'), document.createTextNode(p.category + ' · ' + p.status)); m.bindPopup(d); });
+if (g.length) map.fitBounds(g, {padding: [40, 40], maxZoom: 16});
+</script>{% endblock %}

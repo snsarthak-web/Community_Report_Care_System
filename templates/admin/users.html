@@ -1,0 +1,10 @@
+{% extends "app_base.html" %}
+{% set bg = 'bg-admin.jpg' %}
+{% block heading %}Manage Users{% endblock %}
+{% block content %}
+<section class="card"><div class="table-responsive"><table class="tbl"><thead><tr><th>Name</th><th>Contact</th><th>Joined</th><th>Complaints</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+{% for u, n in rows %}<tr><td><b>{{ u.name }}</b></td><td>{{ u.contact }}</td><td>{{ u.created_at|d }}</td><td>{{ n }}</td><td><span class="pill {{ 'st-resolved' if u.active else 'pr-high' }}">{{ 'Active' if u.active else 'Deactivated' }}</span></td>
+<td class="d-flex gap-2"><form method="post" action="{{ url_for('admin.user_action', uid=u.id, action='toggle') }}" onsubmit="return confirm('Change this account status?')">{{ csrf_input() }}<button class="btn btn-sm btn-outline-secondary">{{ 'Deactivate' if u.active else 'Activate' }}</button></form>
+<form method="post" action="{{ url_for('admin.user_action', uid=u.id, action='reset') }}" onsubmit="return confirm('Generate a temporary password?')">{{ csrf_input() }}<button class="btn btn-sm btn-outline-primary">Reset password</button></form></td></tr>
+{% else %}<tr><td colspan="6" class="empty">No citizens have registered yet.</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

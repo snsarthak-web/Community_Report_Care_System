@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block body %}
+{% set admin = current_user.role == 'admin' %}{% set ep = request.endpoint %}
+<div class="shell" id="shell">
+  <aside class="side" id="side" style="--side-img:url('{{ url_for('static', filename='img/bg-sidebar.jpg') }}')">
+    <div class="brandbox"><div class="logo-circle"><img src="{{ url_for('static', filename='img/logo-mark.png') }}" alt="Community Report Care" onerror="this.remove()"><span>LOGO</span></div>
+      <b>Community Report Care 2.0</b><small>{{ 'Admin Portal' if admin else 'Report • Track • Improve' }}</small></div>
+    <nav>
+    {% if admin %}
+      <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if ep == 'admin.dashboard' }}"><i>▦</i>Overview</a>
+      <a href="{{ url_for('admin.complaints') }}" class="{{ 'active' if ep in ('admin.complaints','admin.detail') }}"><i>☰</i>All Complaints</a>
+      <a href="{{ url_for('admin.ai_review') }}" class="{{ 'active' if ep == 'admin.ai_review' }}"><i>🤖</i>AI Review</a>
+      <a href="{{ url_for('admin.map_view') }}" class="{{ 'active' if ep == 'admin.map_view' }}"><i>📍</i>Map View</a>
+      <a href="{{ url_for('admin.departments') }}" class="{{ 'active' if ep == 'admin.departments' }}"><i>🏢</i>Departments</a>
+      <a href="{{ url_for('admin.votes') }}" class="{{ 'active' if ep == 'admin.votes' }}"><i>👥</i>Community Votes</a>
+      <a href="{{ url_for('admin.notifications') }}" class="{{ 'active' if ep == 'admin.notifications' }}"><i>🔔</i>Notifications{% if unread %}<b class="dot">{{ unread }}</b>{% endif %}</a>
+      <a href="{{ url_for('admin.reports') }}" class="{{ 'active' if ep == 'admin.reports' }}"><i>📊</i>Reports &amp; Analytics</a>
+      <a href="{{ url_for('admin.users') }}" class="{{ 'active' if ep == 'admin.users' }}"><i>👤</i>Manage Users</a>
+      <a href="{{ url_for('admin.settings') }}" class="{{ 'active' if ep == 'admin.settings' }}"><i>⚙️</i>Settings</a>
+      <a href="{{ url_for('admin.logout') }}"><i>⎋</i>Logout</a>
+    {% else %}
+      <a href="{{ url_for('citizen.dashboard') }}" class="{{ 'active' if ep == 'citizen.dashboard' }}"><i>🏠</i>Overview</a>
+      <a href="{{ url_for('citizen.report_choose') }}" class="{{ 'active' if ep in ('citizen.report_choose','citizen.report') }}"><i>✚</i>Report an Issue</a>
+      <a href="{{ url_for('citizen.complaints') }}" class="{{ 'active' if ep in ('citizen.complaints','citizen.detail') }}"><i>☰</i>My Complaints</a>
+      <a href="{{ url_for('citizen.track') }}" class="{{ 'active' if ep == 'citizen.track' }}"><i>⌕</i>Track Complaint</a>
+      <a href="{{ url_for('citizen.map_view') }}" class="{{ 'active' if ep == 'citizen.map_view' }}"><i>🛡</i>Map View</a>
+      <a href="{{ url_for('citizen.notifications') }}" class="{{ 'active' if ep == 'citizen.notifications' }}"><i>🔔</i>Notifications{% if unread %}<b class="dot">{{ unread }}</b>{% endif %}</a>
+      <a href="{{ url_for('citizen.profile') }}" class="{{ 'active' if ep == 'citizen.profile' }}"><i>👤</i>Profile</a>
+      <a href="{{ url_for('auth.logout') }}"><i>⎋</i>Logout</a>
+    {% endif %}
+    </nav>
+    <div class="sidefoot">Together for a Cleaner &amp; Greener City 🌱</div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+  <div class="main">
+    <header class="top">
+      <button class="iconbtn" id="burger" aria-label="Open or close menu">☰</button>
+      <form class="search" action="{{ url_for('admin.complaints') if admin else url_for('citizen.track') }}" method="{{ 'get' if admin else 'post' }}">
+        {% if not admin %}{{ csrf_input() }}{% endif %}<span>⌕</span><input name="{{ 'q' if admin else 'id' }}" placeholder="Search anything…" aria-label="Search by tracking ID">
+      </form>
+      <a class="iconbtn sp" href="{{ url_for('admin.notifications') if admin else url_for('citizen.notifications') }}" aria-label="Notifications">🔔{% if unread %}<b>{{ unread }}</b>{% endif %}</a>
+      <div class="dropdown"><button class="avatar" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Account menu">{{ current_user.name[0]|upper }}</button>
+        <ul class="dropdown-menu dropdown-menu-end"><li class="dropdown-item-text"><b>{{ current_user.name }}</b><br><small class="mut">{{ 'Administrator' if admin else 'Citizen' }}</small></li>
+          <li><a class="dropdown-item" href="{{ url_for('admin.settings') if admin else url_for('citizen.profile') }}">{{ 'Settings' if admin else 'Profile' }}</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('admin.logout') if admin else url_for('auth.logout') }}">Logout</a></li></ul></div>
+    </header>
+    <main class="content">{% block hero %}<h1 class="ptitle">{% block heading %}{% endblock %}</h1>{% endblock %}{% block content %}{% endblock %}</main>
+    <footer class="appfoot">
+      <div class="fb"><div class="slot fl"><img src="{{ url_for('static', filename='img/logo-mark.png') }}" alt="" onerror="this.remove()"><span>LOGO</span></div><div><b>Community Report Care 2.0</b><small>Smart City, Better Tomorrow</small></div></div>
+      <nav><a href="{{ url_for('auth.landing') }}#about">About Us</a><a href="{{ url_for('auth.landing') }}#how">How It Works</a><a href="{{ url_for('auth.landing') }}#contact">Contact</a></nav>
+      {% if admin %}<a class="adminlink" href="{{ url_for('auth.login', switch=1) }}">← Citizen Login</a>{% else %}<a class="adminlink" href="{{ url_for('admin.login', switch=1) }}">🛡 Admin Login</a>{% endif %}
+      <small class="mut">© {{ COPYRIGHT_YEAR or now_local().year }} {{ COMPANY_NAME }}. All rights reserved.</small>
+    </footer>
+  </div>
+</div>
+{% endblock %}

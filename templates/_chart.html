@@ -1,0 +1,6 @@
+{# Reported vs Resolved per day. Same data contract as before (`trend`); drawn by static/js/trendchart.js (no external library, works offline). #}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chart.css') }}">
+<div class="legend"><span><i style="background:#2563EB"></i>Reported <b>{{ trend.reported|sum }}</b></span><span><i style="background:#16A34A"></i>Resolved <b>{{ trend.resolved|sum }}</b></span></div>
+<div class="chartbox"><div id="trend" class="trend2" role="img" aria-label="Reported and resolved complaints per day"></div></div>
+<script>window.__TREND = {{ trend|tojson }};</script>
+<script src="{{ url_for('static', filename='js/trendchart.js') }}" defer></script>

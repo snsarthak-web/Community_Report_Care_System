@@ -1,0 +1,94 @@
+{% extends "app_base.html" %}
+{% from "citizen/_ui.html" import ico, slot, rc_hero %}
+{% set bg = 'bg-report.jpg' %}
+{% block heading %}{{ 'AI-Based Report' if mode == 'ai' else 'Manual Report' }}{% endblock %}
+{% block head %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><link rel="stylesheet" href="{{ url_for('static', filename='css/ai.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/report.css') }}">{% endblock %}
+{% block hero %}{{ rc_hero('AI-Based Report' if mode == 'ai' else 'Manual Report', 'Tell us what is wrong and where. It only takes a minute.', 'Your voice. Your city.', slim=True) }}{% endblock %}
+{% block content %}
+<div class="wz">
+<div class="wz-bar"><i id="wz-fill"></i></div><p class="mut sm" id="wz-label"></p>
+<form method="post" id="rf" data-mode="{{ mode }}" data-upload="{{ url_for('ai.upload_photo') }}" data-detect="{{ url_for('ai.detect') }}" data-nearby="{{ url_for('citizen.nearby') }}" data-upload-video="{{ url_for('ai.upload_video') }}" data-video-submit="{{ url_for('citizen.report_video') }}" data-poor-acc="{{ config.GPS_POOR_ACCURACY_M }}" data-max-issues="{{ config.VIDEO_MAX_ISSUES }}" data-video-status="/ai/video/" data-vmax="{{ config.VIDEO_MAX_MB }}" data-vsec="{{ config.VIDEO_MAX_SECONDS }}">
+  {{ csrf_input() }}<input type="hidden" name="photo_name" id="photo_name"><input type="hidden" name="video_name" id="video_name"><input type="hidden" name="lat" id="lat"><input type="hidden" name="lng" id="lng"><input type="hidden" name="loc_acc" id="loc_acc"><input type="hidden" name="cap_lat" id="cap_lat"><input type="hidden" name="cap_lng" id="cap_lng"><input type="hidden" name="loc_origin" id="loc_origin">
+
+  <section class="card wz-step" data-step="photo"><h3>{{ 'Report a Civic Issue' }}</h3><p class="mut">Capture the problem or choose an existing photograph.{% if mode == 'manual' %} <b>Optional</b> for manual reports.{% endif %}</p>
+    <div class="photo-pick">
+      <button type="button" class="pickbtn" id="btn-cam"><i class="pi">{{ slot('camera') }}</i><b>Take a Photo</b><small>Open your camera</small></button>
+      <button type="button" class="pickbtn" id="btn-gal"><i class="pi alt">{{ slot('image') }}</i><b>Upload Photo</b><small>Choose from gallery</small></button>
+    </div>
+    <input type="file" id="in-cam" accept="image/*" capture="environment" hidden><input type="file" id="in-gal" accept="image/jpeg,image/png,image/webp" hidden>
+    {% if mode == 'ai' %}
+    <div class="vid-or"><span>or report with a video</span></div>
+    <div class="photo-pick vid-pick">
+      <button type="button" class="pickbtn" id="btn-vrec"><i class="pi">{{ slot('video') }}</i><b>Record Video</b><small>Up to 30 seconds</small></button>
+      <button type="button" class="pickbtn" id="btn-vgal"><i class="pi alt">{{ slot('film') }}</i><b>Upload Video</b><small>Choose from gallery</small></button>
+    </div>
+    <input type="file" id="in-vcam" accept="video/*" capture="environment" hidden><input type="file" id="in-vgal" accept="video/*" hidden>
+    <div class="vid-panel" id="vid-panel" hidden role="status" aria-live="polite">
+      <div class="vid-row"><b id="vid-title">Video</b><button type="button" class="btn btn-sm btn-outline-secondary" id="vid-remove" hidden>Remove video</button></div>
+      <div class="vid-bar" id="vid-barwrap"><i id="vid-bar"></i></div><p class="sm mut mb-0" id="vid-text"></p>
+      <div class="vid-found" id="vid-found" hidden></div>
+    </div>
+    {% endif %}
+    <div class="preview" id="preview" hidden><img id="pimg" alt="Selected photo"><div class="d-flex gap-2 justify-content-center mt-2"><button type="button" class="btn btn-sm btn-outline-primary" id="re-cam">Retake</button><button type="button" class="btn btn-sm btn-outline-secondary" id="re-gal">Replace</button></div></div>
+    <p class="note" id="photo-msg" role="status"></p>
+    <div class="locopt">
+      <label class="vid-gps"><input type="checkbox" id="use-loc"> Use my current location <em>(optional, your browser asks only once)</em></label>
+      <div class="locstate pending" id="loc-state" role="status" aria-live="polite"><i aria-hidden="true"></i><span>Location not captured yet</span></div>
+    </div>
+    <div class="actions"><a class="btn btn-light border" href="{{ url_for('citizen.report_choose') }}">Cancel</a><button type="button" class="btn btn-primary" data-next>Continue →</button></div></section>
+
+  <section class="card wz-step" data-step="desc" hidden><h3>Would you like to describe the issue?</h3><p class="mut">Your description helps the authorities understand the problem better. It is never compulsory.</p>
+    <div class="seg"><button type="button" data-desc="add">{{ ico('edit') }} Add details</button><button type="button" data-desc="skip" class="on">Skip and continue</button></div>
+    <div id="descbox" hidden><textarea class="form-control" name="description" id="description" maxlength="500" rows="4" placeholder="Explain the issue in your own words. e.g. This pothole has been here for two weeks and is damaging vehicles."></textarea></div>
+    <div class="actions"><button type="button" class="btn btn-light border" data-back>← Back</button><button type="button" class="btn btn-primary" data-next>{{ 'Analyse with AI →' if mode == 'ai' else 'Continue →' }}</button></div></section>
+
+  {% if mode == 'ai' %}
+  <section class="card wz-step" data-step="ai" hidden><h3>AI Detection Results</h3>
+    <div id="ai-loading" class="note">Analysing your photo…</div>
+    <div id="ai-result" hidden><div id="ai-picker" hidden></div><div class="row g-2" id="ai-imgs"><div class="col-md-6"><small class="mut">Your photo</small><img class="w-100 rounded" id="ai-orig" alt=""></div><div class="col-md-6" id="ai-annwrap"><small class="mut">AI detection</small><img class="w-100 rounded" id="ai-ann" alt=""></div></div>
+      <div class="aibox" id="ai-box"></div></div>
+    <p class="mut sm" id="ai-foot">AI only suggests. You decide the final category on the next screen.</p>
+    <div class="actions"><button type="button" class="btn btn-light border" data-back>← Back</button><button type="button" class="btn btn-primary" data-next id="ai-next" disabled>Confirm category →</button></div></section>
+  {% endif %}
+
+  <section class="card wz-step" data-step="category" hidden><h3>Confirm the complaint category</h3><div class="note ok" id="cat-hint" hidden></div>
+    <div id="cat-multi" hidden></div><div id="cat-single"><select class="form-select" name="category" id="category" aria-label="Category"><option value="">Select category…</option>{% for c in config.CATEGORIES %}<option>{{ c }}</option>{% endfor %}</select></div>
+    <p class="mut sm mt-2">{{ 'You can change the AI suggestion if it is wrong.' if mode == 'ai' else 'Choose the option that fits best.' }}</p>
+    <div class="actions"><button type="button" class="btn btn-light border" data-back>← Back</button><button type="button" class="btn btn-primary" data-next>Continue →</button></div></section>
+
+  <section class="card wz-step" data-step="location" hidden><h3>Location</h3>
+    <div class="locstate pending" id="loc-state2" role="status"><i aria-hidden="true"></i><span>Location not captured yet</span></div>
+    <label class="vid-gps" id="split-wrap" hidden><input type="checkbox" id="split-loc"> These issues are at different places <em>(otherwise one location is used for the whole video)</em></label>
+    <div class="locchips" id="loc-issues" hidden></div>
+    <div class="locrow"><button type="button" class="btn btn-outline-primary" id="gps">{{ ico('gps') }} <span id="gps-label">Use my GPS</span></button><input class="form-control" name="location_text" id="location_text" maxlength="200" placeholder="Landmark or area (e.g. near City Hospital)"></div>
+    <p class="note" id="gps-msg" role="status"></p>
+    <div id="map"></div>
+    <dl class="coords" id="coords" aria-live="polite"></dl>
+    <p class="mut sm mt-2" id="coords-help">Tap the map or drag the pin to set the exact spot. A phone's GPS shows where <b>the phone</b> was, within the accuracy circle, so please check it is on the problem. If GPS is blocked, tap the map or type a landmark.</p>
+    <div class="actions"><button type="button" class="btn btn-light border" data-back>← Back</button><button type="button" class="btn btn-primary" data-next>Review →</button></div></section>
+
+  <section class="card wz-step" data-step="review" hidden><h3>Review before submission</h3>
+    <div id="dup" hidden></div>
+    <div id="summary"></div>
+    <div class="d-flex flex-wrap gap-2 my-3"><button type="button" class="btn btn-sm btn-outline-secondary" data-goto="desc">Edit details</button><button type="button" class="btn btn-sm btn-outline-secondary" data-goto="photo">Change photograph</button><button type="button" class="btn btn-sm btn-outline-secondary" data-goto="category">Change category</button><button type="button" class="btn btn-sm btn-outline-secondary" data-goto="location">Change location</button></div>
+    <div class="actions"><button type="button" class="btn btn-light border" data-back>← Back</button><button class="btn btn-success btn-lg">Submit Complaint {{ ico('check') }}</button></div></section>
+</form></div>
+
+{% if mode == 'ai' %}
+<div class="camx" id="vrec" hidden role="dialog" aria-modal="true" aria-labelledby="vrec-t">
+  <div class="camx-box">
+    <div class="camx-head"><b id="vrec-t">Record a video</b><button type="button" class="camx-x" id="vrec-x" aria-label="Close recorder">{{ ico('x') }}</button></div>
+    <div class="camx-stage"><video id="vrec-v" playsinline muted autoplay></video><div class="camx-msg" id="vrec-msg" role="status">Starting camera…</div><div class="vrec-timer" id="vrec-timer" hidden>0:00 / 0:30</div><div class="vrec-gps" id="vrec-gps" hidden></div></div>
+    <div class="camx-bar"><button type="button" class="camx-side" id="vrec-flip" aria-label="Switch camera">{{ ico('flip') }}<span>Flip</span></button><button type="button" class="vrec-btn" id="vrec-go" aria-label="Start recording" disabled></button><button type="button" class="camx-side" id="vrec-gal" aria-label="Upload a video instead">{{ ico('upload') }}<span>Upload</span></button></div>
+  </div>
+</div>
+{% endif %}
+<div class="camx" id="camx" hidden role="dialog" aria-modal="true" aria-labelledby="camx-t">
+  <div class="camx-box">
+    <div class="camx-head"><b id="camx-t">Take a photo</b><button type="button" class="camx-x" id="camx-x" aria-label="Close camera">{{ ico('x') }}</button></div>
+    <div class="camx-stage"><video id="camx-v" playsinline muted autoplay></video><div class="camx-msg" id="camx-msg" role="status">Starting camera…</div><i class="camx-flash" id="camx-flash"></i></div>
+    <div class="camx-bar"><button type="button" class="camx-side" id="camx-flip" aria-label="Switch camera">{{ ico('flip') }}<span>Flip</span></button><button type="button" class="camx-shutter" id="camx-shot" aria-label="Capture photo"></button><button type="button" class="camx-side" id="camx-gal" aria-label="Upload a photo instead">{{ ico('upload') }}<span>Upload</span></button></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script src="{{ url_for('static', filename='js/ai_panel.js') }}" defer></script><script src="{{ url_for('static', filename='js/report.js') }}"></script>{% if mode == 'ai' %}<script src="{{ url_for('static', filename='js/video.js') }}"></script>{% endif %}{% endblock %}

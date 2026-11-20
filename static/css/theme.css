@@ -1,0 +1,32 @@
+/* Community Report Care - premium civic-tech design layer. Loaded after style.css; it only restyles, no behaviour. */
+:root{--blue:#2563EB;--blue2:#1D4ED8;--navy:#14213D;--deep:#0B1220;--bg:#F5F7FB;--ok:#16A34A;--amber:#F59E0B;--bad:#DC2626;--ink:#1E293B;--mut:#64748B;--line:#E5EAF3;--r:18px;
+ --bs-primary:#2563EB;--bs-primary-rgb:37,99,235;--bs-body-color:#1E293B;--bs-body-font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;--shadow:0 1px 2px rgba(20,33,61,.04),0 8px 24px rgba(20,33,61,.07)}
+body{background:var(--bg);font-family:var(--bs-body-font-family);-webkit-font-smoothing:antialiased}
+.page-bg{background:var(--bg)!important}.page-bg::after{display:none}
+:focus-visible{outline:3px solid rgba(37,99,235,.45);outline-offset:2px}
+/* buttons, forms, cards */
+.btn{transition:transform .18s,box-shadow .18s,background-color .18s}.btn:hover{transform:translateY(-1px)}.btn-primary:hover{box-shadow:0 8px 20px rgba(37,99,235,.32)}.btn:active{transform:none}
+.form-control,.form-select{border-color:#D8E0EE;background:#fff}.form-control:focus,.form-select:focus{box-shadow:0 0 0 4px rgba(37,99,235,.14)}
+label{color:var(--ink)}
+.card{border:1px solid var(--line);box-shadow:var(--shadow);border-radius:var(--r)}
+.scard,.pick,.steps div{transition:transform .2s,box-shadow .2s}.scard:hover,.pick:hover,.steps div:hover{transform:translateY(-4px);box-shadow:0 14px 34px rgba(20,33,61,.13)}
+.tbl th{background:#F1F5FB;color:#475569;font-size:12px;text-transform:uppercase;letter-spacing:.04em}.tbl tbody tr{transition:background .15s}
+.pill{letter-spacing:.01em}
+/* app shell */
+.side{background:linear-gradient(180deg,#14213D 0,#16264A 60%,#0B1220 100%)}
+.side nav a{color:#CBD5E8}.side nav a:hover{background:rgba(255,255,255,.08)}.side nav a.active{background:var(--blue);color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.4)}
+.logo-circle{border-color:rgba(255,255,255,.25)}
+.top{padding:16px clamp(16px,2.2vw,32px)}.iconbtn{border:1px solid var(--line);box-shadow:none}.search{border:1px solid var(--line);box-shadow:none;background:#fff}
+.ptitle{letter-spacing:-.02em}
+.hero-welcome{margin:4px 0 22px;padding:clamp(20px,3vw,32px);border-radius:22px;color:#fff;background:radial-gradient(900px 300px at 85% -40%,rgba(96,165,250,.45),transparent 60%),linear-gradient(120deg,#14213D 0,#1E3A8A 100%);box-shadow:0 14px 34px rgba(20,33,61,.25)}
+.hero-welcome h2{color:#fff}.hero-welcome p{color:#CBD5E8}.hero-welcome .btn{border:0;background:#fff;color:var(--blue);box-shadow:0 8px 22px rgba(0,0,0,.22);padding:12px 26px;font-size:16px}.hero-welcome .btn:hover{background:#EEF4FF}
+.scard{background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);backdrop-filter:none}
+.appfoot{background:#fff}.adminlink{border-color:#C7D7F8;background:#EEF4FF}
+/* logo emblem (sidebar + app footer) */
+.logo-circle{background:#fff}.logo-circle img{object-fit:contain;padding:7px}
+.appfoot .fl{background:#fff;border:0}.appfoot .fl img{object-fit:contain}
+/* admin portal + error pages: simple centred card (the cinematic pages live in landing.css / auth.css) */
+.adm-card{border-top-color:var(--navy)}.adm-logo{background:#fff;border:1px solid var(--line)}.adm-logo img{width:50px;height:50px;object-fit:contain}
+.auth{max-width:520px}.auth.one{grid-template-columns:minmax(0,440px)}
+body:not(.auth-page):not(.lp-page) .auth{background:none}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}

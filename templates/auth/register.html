@@ -1,0 +1,10 @@
+{% extends "auth_base.html" %}
+{% block form %}
+<form class="card auth-card" method="post" novalidate>{{ csrf_input() }}<h2>Create your account</h2><p class="mut">Join your community and start reporting civic issues. It takes under a minute.</p>
+  <label for="n">Full name</label><input class="form-control" id="n" name="name" required maxlength="60" autofocus>
+  <label for="e">Email</label><input class="form-control" id="e" type="email" name="email" required autocomplete="email">
+  <label for="ph">Mobile number <em>(optional, enables OTP login)</em></label><input class="form-control" id="ph" name="phone" inputmode="numeric" maxlength="10">
+  <label for="p">Password <em>(8+ characters)</em></label><input class="form-control" id="p" type="password" name="password" required minlength="8" autocomplete="new-password">
+  <label for="c">Confirm password</label><input class="form-control" id="c" type="password" name="confirm" required autocomplete="new-password">
+  <button class="btn btn-primary w-100 mt-3">Register →</button><p class="c mut">Already registered? <a href="{{ url_for('auth.login') }}" data-switch>Login</a></p></form>
+{% endblock %}

@@ -1,0 +1,63 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Flask instance data (database, AI results)
+/instance/
+
+# YOLO prediction and training outputs
+/runs/
+
+# User uploads
+/static/uploads/*
+!/static/uploads/.gitkeep
+
+# Logs
+*.log
+
+# Editor and operating system files
+.vscode/
+.DS_Store
+Thumbs.db
+# Python cache
+pycache/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Flask instance data
+/instance/
+
+# YOLO prediction and training outputs
+/runs/
+
+# User uploads
+/static/uploads/*
+!/static/uploads/.gitkeep
+
+# Logs
+*.log
+
+# Editor and operating system files
+.vscode/
+.DS_Store
+Thumbs.db

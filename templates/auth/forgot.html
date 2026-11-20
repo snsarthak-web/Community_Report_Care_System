@@ -1,0 +1,7 @@
+{% extends "auth_base.html" %}
+{% block form %}
+<div class="card auth-card"><h2>Forgot your password?</h2>
+  <p class="mut">No problem. If you saved your mobile number in your profile, log in with a one-time code and then set a new password under Profile.</p>
+  <a class="btn btn-primary w-100" href="{{ url_for('auth.otp_login') }}">Login with OTP</a>
+  <p class="c sm mut">No phone number saved? Ask the helpdesk to reset your password.</p><a class="c" href="{{ url_for('auth.login') }}">← Back to login</a></div>
+{% endblock %}

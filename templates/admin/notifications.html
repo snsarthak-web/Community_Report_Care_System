@@ -1,0 +1,9 @@
+{% extends "app_base.html" %}
+{% set bg = 'bg-admin.jpg' %}
+{% block heading %}Admin Notifications{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3"><span class="mut">{{ unread }} unread alerts</span>
+<form method="post" action="{{ url_for('admin.read_all') }}">{{ csrf_input() }}<button class="btn btn-sm btn-outline-primary" {{ 'disabled' if not unread }}>Mark all as read</button></form></div>
+<section class="card p-0">{% for n in rows %}<a class="notif {{ '' if n.is_read else 'unread' }}" href="{{ url_for('admin.open_notification', nid=n.id) }}"><span>{{ '🔵' if not n.is_read else '⚪' }}</span><div><div>{{ n.message }}</div><small class="mut">{{ n.created_at|dt }}</small></div></a>
+{% else %}<p class="empty p-4">No alerts yet. You will be notified of new complaints, disputed fixes and Critical priority.</p>{% endfor %}</section>
+{% endblock %}

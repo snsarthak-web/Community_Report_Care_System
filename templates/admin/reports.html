@@ -1,0 +1,15 @@
+{% extends "app_base.html" %}
+{% set bg = 'bg-admin.jpg' %}
+{% block heading %}Reports &amp; Analytics{% endblock %}
+{% block content %}
+<section class="stat7"><div class="scard"><h4>Total</h4><div class="num">{{ total }}</div></div><div class="scard"><h4>Resolved</h4><div class="num">{{ resolved }}</div></div>
+<div class="scard"><h4>Resolution rate</h4><div class="num">{{ (rate ~ '%') if rate is not none else '—' }}</div></div><div class="scard"><h4>Avg. days to resolve</h4><div class="num">{{ avg_days if avg_days is not none else '—' }}</div></div>
+<div class="scard"><h4>Disputed fixes</h4><div class="num">{{ disputed }}</div></div></section>
+<section class="card"><div class="card-h"><h3>📈 Reported vs Resolved</h3>{% include "_days.html" %}</div>{% include "_chart.html" %}
+<div class="mt-3"><a class="btn btn-outline-primary" href="{{ url_for('admin.export') }}">⬇ Download all complaints (CSV)</a></div></section>
+<div class="row g-3"><div class="col-lg-6"><section class="card h-100"><h3>By category</h3><div class="table-responsive"><table class="tbl"><thead><tr><th>Category</th><th>Total</th><th>Resolved</th><th>Avg days</th></tr></thead><tbody>
+{% for r in by_cat %}<tr><td>{{ r.name }}</td><td>{{ r.total }}</td><td>{{ r.resolved }}</td><td>{{ r.avg_days if r.avg_days is not none else '-' }}</td></tr>{% else %}<tr><td colspan="4" class="empty">No data.</td></tr>{% endfor %}</tbody></table></div></section></div>
+<div class="col-lg-6"><section class="card h-100"><h3>By department</h3><div class="table-responsive"><table class="tbl"><thead><tr><th>Department</th><th>Total</th><th>Resolved</th><th>Avg days</th></tr></thead><tbody>
+{% for r in by_dept %}<tr><td>{{ r.name }}</td><td>{{ r.total }}</td><td>{{ r.resolved }}</td><td>{{ r.avg_days if r.avg_days is not none else '-' }}</td></tr>{% endfor %}</tbody></table></div>
+<h3 class="mt-3">By priority</h3><p>{% for p, n in prio %}<span class="pill pr-{{ p|lower }} me-1">{{ p }}: {{ n }}</span>{% endfor %}</p></section></div></div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "app_base.html" %}
+{% set bg = 'bg-admin.jpg' %}
+{% block heading %}AI Review{% endblock %}
+{% block content %}
+{% set v = request.args.get('v','') %}
+<section class="card"><b>AI performance:</b> {{ (perf.accuracy ~ '% accuracy') if perf.accuracy is not none else 'no reviews yet' }} · {{ perf.correct }} correct · {{ perf.incorrect }} incorrect · {{ perf.total - perf.reviewed }} waiting for review</section>
+<section class="card"><h3>Models</h3><div class="table-responsive"><table class="tbl"><thead><tr><th>Slot</th><th>File loaded</th><th>Classes</th><th>Family</th><th>Admin verdicts (correct / reviewed)</th></tr></thead><tbody>
+{% for m in mstatus %}{% set st = mstats.get(m.name) %}<tr><td><b>{{ m.display_name }}</b><br><small class="mut">{{ m.name }}</small></td>
+<td>{% if m.loaded %}<span class="aip-chip ok">{{ m.file_loaded or m.file }}</span>{% else %}<span class="aip-chip err" title="{{ m.error }}">not loaded</span> <small>{{ m.error }}</small>{% endif %}</td>
+<td>{{ m.classes|length }}{% if m.classes %}<br><small class="mut">{{ m.classes.values()|join(', ') }}</small>{% endif %}</td><td>{{ fam.get(m.file_loaded, m.name) if m.loaded else '-' }}</td>
+<td>{% if st and st.reviewed %}{{ st.correct }} / {{ st.reviewed }} ({{ st.precision }}%){% else %}<span class="mut">no verdicts yet</span>{% endif %}{% if st %}<br><small class="mut">{{ st.total }} predictions stored</small>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div><p class="mut sm mb-0">Verdicts come from the ✔/✖ buttons on each prediction in a complaint's AI panel. Validation scores measured before launch are in <code>docs/MODEL_REPORT.md</code>. Models of one family count as one vote.</p></section>
+<ul class="nav nav-pills mb-3">{% for k, l in (('','All'),('pending','Needs review'),('correct','Correct'),('incorrect','Incorrect')) %}<li class="nav-item"><a class="nav-link {{ 'active' if v == k }}" href="{{ url_for('admin.ai_review', v=k) }}">{{ l }}</a></li>{% endfor %}</ul>
+<div class="row g-3">{% for r in rows %}<div class="col-md-6 col-xl-4"><div class="card h-100">
+  <img class="w-100 rounded mb-2" src="{{ url_for('static', filename='uploads/' ~ (r.annotated_path or r.complaint.image_path)) }}" alt="AI detection" loading="lazy">
+  <div class="d-flex justify-content-between"><a class="tid" href="{{ url_for('admin.detail', tid=r.complaint.tracking_id) }}">{{ r.complaint.tracking_id }}</a>
+    <span class="pill {{ 'st-resolved' if r.prediction_verified is true else 'pr-high' if r.prediction_verified is false else 'st-submitted' }}">{{ 'Correct' if r.prediction_verified is true else 'Incorrect' if r.prediction_verified is false else 'Needs review' }}</span></div>
+  <p class="mb-1"><b>{{ r.detected_object }}</b> · {{ (r.confidence * 100)|round|int }}% · citizen category: {{ r.complaint.category }}</p>
+  {% set an = r.complaint.ai_analysis %}{% if an %}<p class="sm mut mb-1">{{ r.complaint.ai_predictions|length }} model prediction{{ 's' if r.complaint.ai_predictions|length != 1 }}{% if an.conflict %} · models disagree{% endif %}{% if an.needs_confirmation %} · needed confirmation{% endif %}{% if r.complaint.videos %} · video evidence{% endif %}</p>{% endif %}
+  <form method="post" action="{{ url_for('admin.ai_verdict', det_id=r.id) }}" class="d-flex gap-2 mt-auto">{{ csrf_input() }}<input type="hidden" name="back" value="{{ v }}">
+    <button name="verdict" value="1" class="btn btn-sm btn-success">✔ Correct</button><button name="verdict" value="0" class="btn btn-sm btn-danger">✖ Incorrect</button><button name="verdict" value="" class="btn btn-sm btn-light border">Reset</button></form></div></div>
+{% else %}<p class="empty">No AI detections here yet. They appear once citizens report with AI and a trained model is configured.</p>{% endfor %}</div>
+{% endblock %}

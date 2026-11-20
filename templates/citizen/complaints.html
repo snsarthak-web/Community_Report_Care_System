@@ -1,0 +1,14 @@
+{% extends "app_base.html" %}
+{% set bg = 'bg-dashboard.jpg' %}
+{% block heading %}{{ 'Complaints I Support' if supported else 'My Complaints' }}{% endblock %}
+{% block content %}
+<ul class="nav nav-pills mb-3"><li class="nav-item"><a class="nav-link {{ '' if supported else 'active' }}" href="{{ url_for('citizen.complaints') }}">My reports</a></li><li class="nav-item"><a class="nav-link {{ 'active' if supported }}" href="{{ url_for('citizen.complaints', view='supported') }}">Supporting</a></li></ul>
+<form class="filters" method="get"><input type="hidden" name="view" value="{{ 'supported' if supported }}">
+  <select class="form-select" name="group" onchange="this.form.submit()"><option value="">All status</option>{% for k, l in (('pending','Pending'),('progress','In Progress'),('solved','Solved')) %}<option value="{{ k }}" {{ 'selected' if request.args.get('group') == k }}>{{ l }}</option>{% endfor %}</select>
+  <select class="form-select" name="category" onchange="this.form.submit()"><option value="">All categories</option>{% for c in config.CATEGORIES %}<option {{ 'selected' if request.args.get('category') == c }}>{{ c }}</option>{% endfor %}</select>
+  <span class="mut sm">{{ rows|length }} complaints</span></form>
+<section class="card"><div class="table-responsive"><table class="tbl"><thead><tr><th>Tracking ID</th><th>Date</th><th>Category</th><th>Supporters</th><th>Priority</th><th>Status</th></tr></thead><tbody>
+{% for r in rows %}<tr><td><a class="tid" href="{{ url_for('citizen.detail', tid=r.tracking_id) }}">{{ r.tracking_id }}</a></td><td>{{ r.created_at|d }}</td><td>{{ r.category }}</td><td>👥 {{ r.vote_count }}</td>
+<td><span class="pill pr-{{ r.priority|lower }}">{{ r.priority }}</span></td><td><span class="pill st-{{ r.status|lower|replace(' ','') }}">{{ r.status }}</span></td></tr>
+{% else %}<tr><td colspan="6" class="empty">Nothing here yet. <a href="{{ url_for('citizen.report_choose') }}">Report an issue</a></td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

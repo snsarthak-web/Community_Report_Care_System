@@ -1,0 +1,7 @@
+{
+  "_help": "Optional per-model overrides, written AFTER you run python -m ai.inspect_models. Key = the model's class name or class index, value = one of the 15 app categories. Unknown labels stay 'unclassified'.",
+
+  "civicresolve": {
+    "Fallen trees": "Fallen Tree"
+  }
+}

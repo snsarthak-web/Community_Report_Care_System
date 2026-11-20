@@ -1,0 +1,24 @@
+{% extends "app_base.html" %}
+{% set bg = 'bg-admin.jpg' %}
+{% block heading %}Map View{% endblock %}
+{% block head %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">{% endblock %}
+{% block content %}
+<form class="filters" method="get"><select class="form-select" name="status" onchange="this.form.submit()"><option value="">All status</option>{% for s in STATUSES %}<option {{ 'selected' if request.args.get('status') == s }}>{{ s }}</option>{% endfor %}</select>
+<select class="form-select" name="category" onchange="this.form.submit()"><option value="">All categories</option>{% for c in config.CATEGORIES %}<option {{ 'selected' if request.args.get('category') == c }}>{{ c }}</option>{% endfor %}</select>
+<select class="form-select" name="priority" onchange="this.form.submit()"><option value="">All priority</option>{% for p in ('Critical','High','Medium','Low') %}<option {{ 'selected' if request.args.get('priority') == p }}>{{ p }}</option>{% endfor %}</select>
+<select class="form-select" name="department_id" onchange="this.form.submit()"><option value="">All departments</option>{% for d in depts %}<option value="{{ d.id }}" {{ 'selected' if request.args.get('department_id') == d.id|string }}>{{ d.name }}</option>{% endfor %}</select>
+<span class="mut sm">{{ points|length }} complaints with a map location · colour = priority</span></form>
+<section class="card"><div id="map" class="bigmap"></div></section>
+{% endblock %}
+{% block scripts %}<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const pts = {{ points|tojson }}, base = "{{ url_for('admin.detail', tid='__') }}", col = {Critical: '#7c3aed', High: '#dc2626', Medium: '#f59e0b', Low: '#16a34a'};
+const map = L.map('map').setView([20.59, 78.96], 5);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '© OpenStreetMap'}).addTo(map);
+const g = [];
+pts.forEach(p => { const m = L.circleMarker([p.latitude, p.longitude], {radius: 9 + Math.min(p.votes, 6), color: '#fff', weight: 2, fillColor: col[p.priority], fillOpacity: .9}).addTo(map); g.push([p.latitude, p.longitude]);
+  const a = document.createElement('a'); a.href = base.replace('__', p.tracking_id); a.textContent = p.tracking_id;
+  const d = document.createElement('div'); d.append(a, document.createElement('br'), document.createTextNode(`${p.category} · ${p.status} · ${p.priority} · ${p.votes} supporters`)); if (p.src) d.append(document.createElement('br'), document.createTextNode(p.src + (p.acc ? ` (±${Math.round(p.acc)} m)` : ''))); if (p.video) d.append(document.createElement('br'), document.createTextNode('from a video')); m.bindPopup(d);
+  if (p.acc) L.circle([p.latitude, p.longitude], {radius: p.acc, color: col[p.priority], weight: 1, fillOpacity: .06, interactive: false}).addTo(map); });
+if (g.length) map.fitBounds(g, {padding: [40, 40], maxZoom: 16});
+</script>{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "auth_base.html" %}
+{% block form %}
+<form class="card auth-card" method="post" novalidate>{{ csrf_input() }}<h2>Welcome!</h2><p class="mut mb-0">Login with a one-time code</p>
+  <div class="tabs2"><a href="{{ url_for('auth.login') }}" data-switch>Email &amp; password</a><a class="on" href="{{ url_for('auth.otp_login') }}">Login with OTP</a></div>
+  <label for="phone">Mobile number</label><div class="input-group"><span class="input-group-text">+91</span><input class="form-control" id="phone" name="phone" inputmode="numeric" maxlength="10" placeholder="98765 43210" required autofocus></div>
+  <label for="n">Your name <em>(only needed the first time)</em></label><input class="form-control" id="n" name="name" maxlength="60" placeholder="Rahul Sharma">
+  <button class="btn btn-primary w-100 mt-3">Send OTP →</button>
+  <p class="c sm mut">The code appears on the next screen and stays valid for {{ config.OTP_SECONDS }} seconds.</p></form>
+{% endblock %}

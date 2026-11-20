@@ -1,0 +1,3 @@
+{# How this complaint's coordinates were obtained. Needs: c #}
+{% set g = c.geo %}{% if g %}<p class="sm mut geo-info">📌 <b>Location source:</b> {{ GEO_LABEL.get(g.source, g.source) }}{% if g.accuracy_m is not none %} · GPS accuracy ±{{ g.accuracy_m|round|int }} m{% endif %}{% if g.moved_m and g.moved_m > 5 %} · pin moved {{ g.moved_m|round|int }} m from the GPS fix{% endif %}{% if g.sample_dt_sec is not none and g.source.startswith('video') %} · GPS sample taken {{ g.sample_dt_sec|round(1) }} s from the detection{% endif %}.
+  {% if g.source in ('gps','video_gps','upload_fix') %}A phone's GPS shows where the phone was, not the exact position of the problem.{% endif %}</p>{% endif %}

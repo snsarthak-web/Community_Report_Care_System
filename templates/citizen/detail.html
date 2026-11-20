@@ -1,0 +1,24 @@
+{% extends "app_base.html" %}
+{% set bg = 'bg-dashboard.jpg' %}
+{% block heading %}Complaint {{ c.tracking_id }}{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/ai.css') }}">{% endblock %}
+{% block content %}
+<div class="detail"><div><section class="card">{% include "_photo.html" %}
+  <h2>{{ c.category }} <span class="pill pr-{{ c.priority|lower }}">{{ c.priority }}</span> <span class="pill st-{{ c.status|lower|replace(' ','') }}">{{ c.status }}</span></h2>
+  <p class="mut">{{ c.tracking_id }} · Submitted {{ c.created_at|dt }} · {{ 'AI-assisted' if c.reporting_method == 'ai' else 'Manual' }} report</p>
+  <p>{{ c.description or 'No description provided.' }}</p>
+  <p class="mut">📍 {{ c.location_text or 'No landmark' }}{% if c.latitude %} · <a href="https://www.openstreetmap.org/?mlat={{ c.latitude }}&mlon={{ c.longitude }}#map=17/{{ c.latitude }}/{{ c.longitude }}" target="_blank" rel="noopener">View on map</a>{% endif %}</p>
+  {% if c.department or c.assigned_officer %}<p class="mut">Responsible: <b>{{ c.department.name if c.department else 'Department pending' }}</b>{% if c.assigned_officer %} · Officer {{ c.assigned_officer }}{% endif %}</p>{% endif %}
+  {% if is_owner %}{% include "_geo.html" %}{% with ep='citizen.detail' %}{% include "_siblings.html" %}{% endwith %}{% endif %}
+  <p>👥 <b>{{ c.vote_count }}</b> {{ 'citizen supports' if c.vote_count == 1 else 'citizens support' }} this complaint</p>
+  {% if det %}<div class="note ok">🤖 AI detected <b>{{ det.detected_object }}</b> ({{ (det.confidence * 100)|round|int }}%){% if det.prediction_verified is true %} · ✔ verified by admin{% elif det.prediction_verified is false %} · admin corrected this prediction{% endif %}</div>{% endif %}
+  {% if not is_owner and not voted %}<form method="post" action="{{ url_for('citizen.vote', tid=c.tracking_id) }}">{{ csrf_input() }}<button class="btn btn-primary">👍 Support this complaint</button></form>{% endif %}
+  {% if voted %}<p class="note ok">You support this complaint.</p>{% endif %}
+  {% if can_feedback %}<div class="fixbox"><b>Was the problem really fixed?</b><p class="sm mb-2">Compare the before and after photos, then tell us.</p>
+    <form method="post" action="{{ url_for('citizen.feedback', tid=c.tracking_id) }}">{{ csrf_input() }}<input class="form-control mb-2" name="note" maxlength="300" placeholder="Optional comment">
+      <button name="answer" value="fixed" class="btn btn-success">✔ Yes, it is fixed</button> <button name="answer" value="not_fixed" class="btn btn-outline-danger">✖ No, still unresolved</button></form></div>{% endif %}
+  {% if c.citizen_feedback == 'confirmed' %}<p class="note ok">You confirmed this was fixed. Thank you!</p>{% endif %}</section>
+  {% if is_owner %}{% include "_video_panel.html" %}{% with admin_mode=false %}{% include "_ai_panel.html" %}{% endwith %}{% endif %}</div>
+  <aside><section class="card"><h3>Status timeline</h3>{% include "_timeline.html" %}</section></aside></div>
+<script src="{{ url_for('static', filename='js/ai_panel.js') }}" defer></script>
+{% endblock %}

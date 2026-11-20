@@ -1,0 +1,28 @@
+{% extends "app_base.html" %}
+{% from "citizen/_ui.html" import ico, rc_hero %}
+{% set bg = 'bg-dashboard.jpg' %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/report.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}"><script>document.documentElement.classList.add('js')</script>{% endblock %}
+{% block hero %}
+{% set hr = now_local().hour %}{% set greet = 'Good morning' if hr < 12 else ('Good afternoon' if hr < 17 else 'Good evening') %}
+<div class="aurora" aria-hidden="true"><img class="aur-img" src="{{ url_for('static', filename='img/bg-overview.jpg') }}" alt="" onerror="this.remove()"><i></i><i></i><i></i></div>
+{% set chips %}<a class="rc-chip" href="{{ url_for('citizen.complaints') }}"><small>{{ ico('clock') }} Open</small><b>{{ s.pending + s.progress }}</b></a><a class="rc-chip" href="{{ url_for('citizen.notifications') }}"><small>{{ ico('bell') }} Unread</small><b>{{ unread }}</b></a>{% endset %}
+{% call rc_hero(greet ~ ', ' ~ current_user.name, "Let's work together for a better community!", now_local().strftime('%A') ~ ', ' ~ now_local().day ~ ' ' ~ now_local().strftime('%B %Y'), tall=True, side=chips) %}
+  <a class="hbtn pri" href="{{ url_for('citizen.report_choose') }}">Report an Issue {{ ico('arrow') }}</a><a class="hbtn ghost" href="{{ url_for('citizen.track') }}">Track a Complaint</a>
+{% endcall %}
+{% endblock %}
+{% block content %}
+<section class="sc2-grid">
+  <a class="sc2 rv2" style="--c:#F59E0B;--c2:#FBBF24;--d:0" href="{{ url_for('citizen.complaints', group='pending') }}"><span class="ti">{{ ico('clock') }}</span><h4>Pending</h4><span class="num">{{ s.pending }}</span><span class="sub"><span class="plus">+{{ s.pending_wk }}</span> Last 7 days</span></a>
+  <a class="sc2 rv2" style="--c:#2563EB;--c2:#38BDF8;--d:1" href="{{ url_for('citizen.complaints', group='progress') }}"><span class="ti">{{ ico('loader') }}</span><h4>In Progress</h4><span class="num">{{ s.progress }}</span><span class="sub"><span class="plus">+{{ s.progress_wk }}</span> Last 7 days</span></a>
+  <a class="sc2 rv2" style="--c:#16A34A;--c2:#4ADE80;--d:2" href="{{ url_for('citizen.complaints', group='solved') }}"><span class="ti">{{ ico('check') }}</span><h4>Solved</h4><span class="num">{{ s.solved }}</span><span class="sub"><span class="plus">+{{ s.solved_wk }}</span> Last 7 days</span></a>
+  <div class="sc2 ring-card rv2" style="--c:#16A34A;--d:3" title="Service level = solved complaints ÷ all your complaints"><div class="ring2" style="--p:{{ s.rate or 0 }}"><div><small>Service Level</small><b>{{ (s.rate ~ '%') if s.rate is not none else '—' }}</b><small>Target 75%</small></div></div></div>
+  <a class="sc2 rv2" style="--c:#8B5CF6;--c2:#A78BFA;--d:4" href="{{ url_for('citizen.complaints') }}"><span class="ti">{{ ico('list') }}</span><h4>Total Reports</h4><span class="num">{{ s.total }}</span><span class="sub">All time</span></a>
+</section>
+<section class="card v2"><div class="card-h"><h3><span class="ti">{{ ico('trend') }}</span>Complaint Analytics</h3>{% include "_days.html" %}</div>{% include "_chart.html" %}</section>
+<div class="dashboard-bottom"><section class="card v2"><div class="card-h"><h3><span class="ti o">{{ ico('list') }}</span>Recent Complaints</h3><a href="{{ url_for('citizen.complaints') }}" class="fw-bold go">View All {{ ico('arrow') }}</a></div>
+  <div class="table-responsive"><table class="tbl tbl-stack"><thead><tr><th>Date</th><th>Tracking ID</th><th>Category</th><th>Status</th></tr></thead><tbody>
+  {% for r in recent %}<tr><td data-label="Date">{{ r.created_at|d }}</td><td data-label="Tracking ID"><a class="tid" href="{{ url_for('citizen.detail', tid=r.tracking_id) }}">{{ r.tracking_id }}</a></td><td data-label="Category">{{ r.category }}</td><td data-label="Status"><span class="pill st-{{ r.status|lower|replace(' ','') }}">{{ r.status }}</span></td></tr>
+  {% else %}<tr><td colspan="4" class="empty">No complaints yet. <a href="{{ url_for('citizen.report_choose') }}">Report your first issue</a></td></tr>{% endfor %}</tbody></table></div></section>
+  <section class="card v2"><div class="card-h"><h3><span class="ti g">{{ ico('map') }}</span>Complaints by Category</h3></div>{% include "_cats.html" %}</section></div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/pages.js') }}" defer></script>{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "auth_base.html" %}
+{% block form %}
+<form class="card auth-card" method="post" novalidate>{{ csrf_input() }}<h2>Welcome Back!</h2><p class="mut mb-0">Log in to continue monitoring your signals.</p>
+  <div class="tabs2"><a class="on" href="{{ url_for('auth.login') }}">Email &amp; password</a><a href="{{ url_for('auth.otp_login') }}" data-switch>Login with OTP</a></div>
+  <label for="email">Email</label><input class="form-control" id="email" type="email" name="email" required autofocus autocomplete="email">
+  <label for="pw">Password</label><div class="input-group"><input class="form-control" id="pw" type="password" name="password" required autocomplete="current-password"><button type="button" class="btn btn-light border" data-showpw="pw" aria-label="Show password">👁</button></div>
+  <div class="text-end mt-1"><a class="sm" href="{{ url_for('auth.forgot') }}">Forgot password?</a></div>
+  <button class="btn btn-primary w-100 mt-3">Login →</button>
+  <p class="c mut">New here? <a href="{{ url_for('auth.register') }}" data-switch>Create an account</a></p>
+  <p class="c sm mut mb-0">Administrator? <a href="{{ url_for('admin.login') }}">Use the Admin Portal</a></p></form>
+{% endblock %}

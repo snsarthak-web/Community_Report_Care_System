@@ -1,0 +1,30 @@
+{% extends "app_base.html" %}
+{% set bg = 'bg-admin.jpg' %}
+{% block heading %}Complaint {{ c.tracking_id }}{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/ai.css') }}">{% endblock %}
+{% block content %}
+<div class="detail"><div><section class="card">{% include "_photo.html" %}
+  <h2>{{ c.category }} <span class="pill pr-{{ c.priority|lower }}">{{ c.priority }}</span> <span class="pill st-{{ c.status|lower|replace(' ','') }}">{{ c.status }}</span></h2>
+  <p class="mut">{{ c.tracking_id }} · {{ c.created_at|dt }} · {{ 'AI-assisted' if c.reporting_method == 'ai' else 'Manual' }} · by {{ c.user.name }} ({{ c.user.contact }}) · 👥 {{ c.vote_count }} supporters</p>
+  <p>{{ c.description or 'No description provided.' }}</p>
+  <p class="mut">📍 {{ c.location_text or 'No landmark' }}{% if c.latitude %} · {{ '%.5f'|format(c.latitude) }}, {{ '%.5f'|format(c.longitude) }} · <a href="https://www.openstreetmap.org/?mlat={{ c.latitude }}&mlon={{ c.longitude }}#map=17/{{ c.latitude }}/{{ c.longitude }}" target="_blank" rel="noopener">Open map</a>{% endif %}</p>
+  {% include "_geo.html" %}{% with ep='admin.detail' %}{% include "_siblings.html" %}{% endwith %}
+  {% if det %}<div class="note ok">🤖 AI detected <b>{{ det.detected_object }}</b> at {{ (det.confidence * 100)|round|int }}% (model: {{ det.model_name|mlabel }}). Boxes found: {{ c.boxes|length }}</div>{% endif %}
+  {% if c.citizen_feedback == 'disputed' %}<div class="note err">⚠️ Citizen says this is NOT fixed{% if c.feedback_note %}: {{ c.feedback_note }}{% endif %}</div>{% elif c.citizen_feedback == 'confirmed' %}<div class="note ok">✔ Citizen confirmed the fix{% if c.feedback_note %}: {{ c.feedback_note }}{% endif %}</div>{% endif %}</section>
+  {% include "_video_panel.html" %}{% with admin_mode=true %}{% include "_ai_panel.html" %}{% endwith %}
+  <section class="card"><h3>Status timeline</h3>{% include "_timeline.html" %}</section></div>
+  <script src="{{ url_for('static', filename='js/ai_panel.js') }}" defer></script>
+  <aside><form class="card" method="post" enctype="multipart/form-data">{{ csrf_input() }}<h3>Manage complaint</h3>
+    <label>Status</label><select class="form-select" name="status">{% for s in stages %}<option {{ 'selected' if c.status == s }}>{{ s }}</option>{% endfor %}</select>
+    <label>Category <em>(correct if wrong)</em></label><select class="form-select" name="category">{% for x in config.CATEGORIES %}<option {{ 'selected' if c.category == x }}>{{ x }}</option>{% endfor %}</select>
+    <label>Department</label><select class="form-select" name="department_id"><option value="">Unassigned</option>{% for d in depts %}<option value="{{ d.id }}" {{ 'selected' if c.department_id == d.id }}>{{ d.name }}</option>{% endfor %}</select>
+    <label>Responsible officer</label><input class="form-control" name="officer" maxlength="80" value="{{ c.assigned_officer or '' }}" placeholder="e.g. R. Sharma, Junior Engineer">
+    <label>Priority <em>(setting it locks the automatic vote-based priority)</em></label><select class="form-select" name="priority">{% for p in priorities %}<option {{ 'selected' if c.priority == p }}>{{ p }}</option>{% endfor %}</select>
+    <label>Note shown to the citizen</label><input class="form-control" name="note" maxlength="300" placeholder="e.g. Repair crew scheduled for Friday">
+    <label>After-repair photo <em>(required to resolve)</em></label><input class="form-control" type="file" name="evidence" accept="image/jpeg,image/png,image/webp">
+    {% if c.resolution_image %}<p class="note ok">An after-repair photo is already attached.</p>{% endif %}
+    <label class="d-flex gap-2 align-items-center fw-normal"><input type="checkbox" name="no_evidence"> Resolve without a photo (explain in the note)</label>
+    {% if det %}<label>AI prediction was…</label><select class="form-select" name="verdict"><option value="" {{ 'selected' if det.prediction_verified is none }}>Not reviewed</option><option value="1" {{ 'selected' if det.prediction_verified is true }}>Correct</option><option value="0" {{ 'selected' if det.prediction_verified is false }}>Incorrect</option></select>{% endif %}
+    <button class="btn btn-primary w-100 mt-3">Save &amp; notify citizen</button></form>
+  <section class="card"><h3>Admin activity on this complaint</h3>{% for l in logs %}<p class="sm mb-2"><b>{{ l.admin.name if l.admin else '?' }}</b> · {{ l.created_at|dt }}<br>{{ l.details }}</p>{% else %}<p class="mut sm">No admin changes yet.</p>{% endfor %}</section></aside></div>
+{% endblock %}

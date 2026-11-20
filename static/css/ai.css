@@ -1,0 +1,15 @@
+/* AI analysis + video evidence panels (admin and citizen complaint pages) */
+.aip,.vp{border-radius:22px}
+.aip-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}.aip-head h3{margin:0}
+.aip-flags{display:flex;gap:6px;flex-wrap:wrap}
+.aip-chip{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:#EEF2F8;color:#475569}
+.aip-chip.ok{background:#DCFCE7;color:#166534}.aip-chip.warn{background:#FEF3C7;color:#92400E}.aip-chip.err{background:#FEE2E2;color:#991B1B}.aip-chip.mute{background:#EEF2F8;color:#64748B}
+.aip-reason{margin:2px 0;font-size:13.5px;color:#92400E}
+.aip-models{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.aip-model{font-size:12px;padding:3px 10px;border-radius:8px;background:#E8F0FF;color:#1E40AF}.aip-model.unavailable{background:#F1F5F9;color:#64748B}.aip-model.error{background:#FEE2E2;color:#991B1B}
+.aip-tbl{font-size:13px}.aip-tbl tr.aip-sel td{background:#F0F7FF}.aip-verdict{display:flex;gap:4px}.aip-verdict .btn{padding:2px 9px}
+.vp-player{width:100%;max-height:420px;border-radius:16px;background:#000;display:block}
+.vp h4{font-size:15px;margin:16px 0 8px}.vp-issues{list-style:none;padding:0;margin:0;display:grid;gap:8px}.vp-issues li{padding:10px 12px;border-radius:14px;background:#F5F8FE;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.vp-t{border:0;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:700;background:#2563EB;color:#fff;cursor:pointer}.vp-t:hover{background:#1D4ED8}
+.vp-frames{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}.vp-frames figure{margin:0}.vp-frames img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;display:block;border:1px solid #E3EAF5}
+.vp-frames figcaption{font-size:12.5px;margin-top:4px;color:#475569}
+@media(max-width:700px){.aip-tbl thead{display:none}.aip-tbl,.aip-tbl tbody,.aip-tbl tr,.aip-tbl td{display:block;width:100%}.aip-tbl tr{padding:8px 0;border-bottom:1px solid #E3EAF5}.aip-tbl td{display:flex;justify-content:space-between;gap:10px;padding:3px 2px;border:0;text-align:right}.aip-tbl td::before{content:attr(data-label);font-weight:700;color:#64748B;text-align:left}}

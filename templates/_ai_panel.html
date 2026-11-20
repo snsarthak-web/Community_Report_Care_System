@@ -1,0 +1,33 @@
+{# AI analysis of one complaint: every model's prediction (image or video frame), conflicts, and (admin only) a verdict per prediction.
+   Needs: c   and   admin_mode (true/false) #}
+{% set an = c.ai_analysis %}{% set preds = c.ai_predictions %}
+{% if an or preds %}
+<section class="card aip" id="ai-details">
+  <div class="aip-head"><h3>AI analysis</h3>
+    {% if an %}<div class="aip-flags">
+      <span class="aip-chip {{ 'warn' if an.needs_confirmation else 'ok' }}">{{ 'Needs confirmation' if an.needs_confirmation else 'No conflicts' }}</span>
+      {% if an.conflict %}<span class="aip-chip err">Models disagree</span>{% endif %}
+      {% if an.multiple_issues %}<span class="aip-chip warn">Several issue types</span>{% endif %}
+      {% if not an.calibrated %}<span class="aip-chip mute" title="Reliability has not been measured on validation data yet; a neutral default was used.">Uncalibrated</span>{% endif %}
+      <span class="aip-chip mute">{{ 'Video' if an.source == 'video' else 'Photo' }}</span></div>{% endif %}</div>
+  {% if an %}
+    <p class="sm">AI suggested <b>{{ an.suggested_category or 'nothing' }}</b>{% if an.reliability %} (reliability {{ (an.reliability * 100)|round|int }}%){% endif %}; the citizen chose <b>{{ an.citizen_category }}</b>{% if an.suggested_category and an.citizen_category != an.suggested_category %} <em>(the citizen corrected the AI)</em>{% endif %}. This is a suggestion, not verified ground truth.</p>
+    {% for r in an.reasons %}<p class="aip-reason">• {{ r }}</p>{% endfor %}
+    {% if an.models %}<p class="aip-models">{% for m in an.models %}<span class="aip-model {{ m.status }}" title="{{ m.error or '' }}">{{ m.display_name or m.name }}: {{ 'ok' if m.status == 'ok' else ('not available' if m.status == 'unavailable' else 'error') }}{% if m.status == 'ok' %} · {{ m.count or 0 }} found · {{ m.ms or 0 }} ms{% endif %}</span>{% endfor %}</p>{% endif %}
+  {% endif %}
+  {% if preds %}
+  <div class="table-responsive"><table class="tbl aip-tbl"><thead><tr><th>Model</th><th>Model's own class</th><th>Category</th><th>Confidence</th><th>Reliability</th>{% if an and an.source == 'video' %}<th>Time</th>{% endif %}<th>Box (x, y · w × h)</th><th>Status</th>{% if admin_mode %}<th>Admin verdict</th>{% endif %}</tr></thead><tbody>
+  {% for p in preds %}<tr class="{{ 'aip-sel' if p.is_selected }}">
+    <td data-label="Model">{{ p.model_name|mlabel }}</td><td data-label="Class">{{ p.model_label }}</td>
+    <td data-label="Category">{{ p.category or 'unclassified' }}</td>
+    <td data-label="Confidence">{{ ((p.confidence or 0) * 100)|round|int }}%</td>
+    <td data-label="Reliability">{{ ((p.reliability or 0) * 100)|round|int }}%</td>
+    {% if an and an.source == 'video' %}<td data-label="Time">{% if p.timestamp_sec is not none %}<button type="button" class="vp-t" data-seek="{{ p.timestamp_sec }}">{{ '%d:%02d'|format((p.timestamp_sec // 60)|int, (p.timestamp_sec % 60)|int) }}</button>{% endif %}</td>{% endif %}
+    <td data-label="Box">{% if p.box %}{{ (p.box[0] * 100)|round|int }}%, {{ (p.box[1] * 100)|round|int }}% · {{ (p.box[2] * 100)|round|int }} × {{ (p.box[3] * 100)|round|int }}%{% else %}whole image{% endif %}</td>
+    <td data-label="Status">{% if p.is_selected %}<span class="aip-chip ok">suggested</span> {% endif %}{% if p.is_conflict %}<span class="aip-chip err">conflict</span> {% endif %}{% if p.verified is true %}<span class="aip-chip ok">verified correct</span>{% elif p.verified is false %}<span class="aip-chip err">marked incorrect</span>{% endif %}</td>
+    {% if admin_mode %}<td data-label="Verdict"><form method="post" action="{{ url_for('admin.ai_prediction_verdict', pid=p.id) }}" class="aip-verdict">{{ csrf_input() }}<button name="verdict" value="1" class="btn btn-sm btn-success" title="This prediction is correct">✔</button><button name="verdict" value="0" class="btn btn-sm btn-danger" title="This prediction is wrong">✖</button><button name="verdict" value="" class="btn btn-sm btn-light border" title="Reset">↺</button></form></td>{% endif %}</tr>{% endfor %}
+  </tbody></table></div>
+  {% if admin_mode %}<p class="mut sm">To correct the final category, use <b>Manage complaint → Category</b>. The citizen's own choice is never changed automatically.</p>{% endif %}
+  {% endif %}
+</section>
+{% endif %}

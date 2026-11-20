@@ -1,0 +1,6 @@
+{# Complaints made from the same video. Needs: c, sibs, ep (endpoint name of the complaint page) #}
+{% set vi = c.video_issue %}{% if vi %}
+<div class="note ok video-sib">🎞 Reported from a video (issue #{{ (vi.issue_id or 'i0')[1:]|int + 1 }}), at <button type="button" class="vp-t" data-seek="{{ vi.timestamp_sec or 0 }}">{{ '%d:%02d'|format(((vi.timestamp_sec or 0) // 60)|int, ((vi.timestamp_sec or 0) % 60)|int) }}</button>
+  {% if vi.category_ai and vi.category_ai != c.category %}<span class="mut">(AI saw {{ vi.category_ai }})</span>{% endif %}
+  {% if sibs %}<div class="sm mt-1">Other complaints from the same video: {% for s in sibs %}<a href="{{ url_for(ep, tid=s.tracking_id) }}">{{ s.tracking_id }}</a> ({{ s.category }}){{ ', ' if not loop.last }}{% endfor %}</div>{% endif %}</div>
+{% endif %}

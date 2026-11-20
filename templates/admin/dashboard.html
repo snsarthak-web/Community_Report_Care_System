@@ -1,0 +1,23 @@
+{% extends "app_base.html" %}
+{% set bg = 'bg-admin.jpg' %}
+{% block heading %}Admin Overview{% endblock %}
+{% block content %}
+{% if disputed %}<div class="note warn mb-3">⚠️ <b>{{ disputed }}</b> complaint(s) were re-opened because the citizen says the problem is still unresolved. <a href="{{ url_for('admin.complaints', status='Under Review') }}">Review them</a></div>{% endif %}
+<section class="stat7">
+  <a class="scard" style="--c:#0a4fc4" href="{{ url_for('admin.complaints') }}"><h4>Total</h4><div class="num">{{ total }}</div><small>All complaints</small></a>
+  <a class="scard" href="{{ url_for('admin.complaints', status='Submitted') }}"><h4>Pending</h4><div class="num">{{ counts.get('Submitted', 0) }}</div><small>Submitted</small></a>
+  <a class="scard" href="{{ url_for('admin.complaints', status='Under Review') }}"><h4>Under Review</h4><div class="num">{{ counts.get('Under Review', 0) }}</div><small>Being checked</small></a>
+  <a class="scard" href="{{ url_for('admin.complaints', status='Assigned') }}"><h4>Assigned</h4><div class="num">{{ counts.get('Assigned', 0) }}</div><small>With a department</small></a>
+  <a class="scard" href="{{ url_for('admin.complaints', status='In Progress') }}"><h4>In Progress</h4><div class="num">{{ counts.get('In Progress', 0) }}</div><small>Work underway</small></a>
+  <a class="scard" href="{{ url_for('admin.complaints', status='Resolved') }}"><h4>Resolved</h4><div class="num">{{ counts.get('Resolved', 0) }}</div><small>Completed</small></a>
+  <a class="scard" href="{{ url_for('admin.ai_review') }}"><h4>AI Detections</h4><div class="num">{{ ai.total }}</div><small>{{ ai.reviewed }} reviewed</small></a>
+</section>
+<section class="card"><div class="card-h"><h3>📊 Complaint Trends</h3>{% include "_days.html" %}</div>{% include "_chart.html" %}</section>
+<div class="dashboard-bottom"><section class="card"><div class="card-h"><h3>🗂 Recent Complaints</h3><a href="{{ url_for('admin.complaints') }}" class="fw-bold">View All →</a></div>
+  <div class="table-responsive"><table class="tbl"><thead><tr><th>Date</th><th>Tracking ID</th><th>Category</th><th>Priority</th><th>Status</th></tr></thead><tbody>
+  {% for r in recent %}<tr><td>{{ r.created_at|d }}</td><td><a class="tid" href="{{ url_for('admin.detail', tid=r.tracking_id) }}">{{ r.tracking_id }}</a></td><td>{{ r.category }}</td><td><span class="pill pr-{{ r.priority|lower }}">{{ r.priority }}</span></td><td><span class="pill st-{{ r.status|lower|replace(' ','') }}">{{ r.status }}</span></td></tr>
+  {% else %}<tr><td colspan="5" class="empty">No complaints yet.</td></tr>{% endfor %}</tbody></table></div></section>
+  <div class="stack"><section class="card"><div class="card-h"><h3>🧭 By Category</h3></div>{% include "_cats.html" %}</section>
+  <section class="card"><div class="card-h"><h3>🏢 By Department</h3></div>{% for n, k in depts %}<div class="bar"><span>{{ n }}</span><div><i style="width:{{ (k * 100 / total)|round if total else 0 }}%;background:#06b6d4"></i></div><em>{{ k }}</em></div>{% else %}<p class="empty">No data.</p>{% endfor %}</section>
+  <section class="card"><div class="card-h"><h3>🤖 AI Performance</h3></div><p class="mb-1">Accuracy on admin-reviewed predictions: <b>{{ (ai.accuracy ~ '%') if ai.accuracy is not none else 'not enough reviews yet' }}</b></p><p class="mut sm mb-0">{{ ai.correct }} correct · {{ ai.incorrect }} incorrect · citizens changed the AI category {{ ai.changed }} time(s)</p></section></div></div>
+{% endblock %}

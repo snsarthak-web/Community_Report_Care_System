@@ -1,0 +1,20 @@
+{# Video evidence of one complaint: player, clickable detection timeline, annotated frames, optional GPS. Needs: c #}
+{% for v in c.videos %}{% set s = v.summary %}
+<section class="card vp" id="video-evidence">
+  <h3>Video evidence</h3>
+  {% set ann = s.annotated_video %}
+  <video class="vp-player" controls preload="metadata" playsinline data-orig="{{ url_for('static', filename='uploads/' ~ v.filename) }}"{% if ann %} data-ann="{{ url_for('static', filename='uploads/' ~ ann) }}"{% endif %} src="{{ url_for('static', filename='uploads/' ~ (ann or v.filename)) }}">Your browser cannot play this video.</video>
+  {% if ann %}<div class="vp-toggle"><button type="button" class="vp-src on" data-vsrc="ann">With AI boxes</button><button type="button" class="vp-src" data-vsrc="orig">Original video</button>
+    <a class="sm" href="{{ url_for('static', filename='uploads/' ~ ann) }}" download>Download</a></div>
+  <p class="mut sm">Numbered boxes (#1, #2 …) are the issues the AI found. A thick box is a moment the AI checked; a thin box follows it for about a second. Audio is kept when the server has ffmpeg.</p>{% endif %}
+  <p class="mut sm">{{ (v.duration_sec or 0)|round(1) }} s · {{ v.width }}×{{ v.height }} · {{ ((v.size_bytes or 0) / 1048576)|round(1) }} MB · {{ v.frames_analyzed or 0 }} frames checked by all five AI models</p>
+  {% if s.issues %}<h4>Issues detected in the video</h4>
+  <ul class="vp-issues">{% for i in s.issues %}<li><b>#{{ loop.index }} {{ i.category }}</b> <span class="mut">score {{ (i.score * 100)|round|int }}% · seen in {{ i.frames_seen }} of {{ i.frames_total }} frames</span>
+    {% for t in i.timestamps %}<button type="button" class="vp-t" data-seek="{{ t }}">{{ '%d:%02d'|format((t // 60)|int, (t % 60)|int) }}</button>{% endfor %}</li>{% endfor %}</ul>{% endif %}
+  {% if s.frames %}<h4>Analysed frames</h4>
+  <div class="vp-frames">{% for f in s.frames %}{% if f.annotated %}<figure><a href="{{ url_for('static', filename='uploads/' ~ f.annotated) }}" target="_blank" rel="noopener"><img loading="lazy" src="{{ url_for('static', filename='uploads/' ~ f.annotated) }}" alt="Annotated frame at {{ '%d:%02d'|format((f.t // 60)|int, (f.t % 60)|int) }}"></a>
+    <figcaption><button type="button" class="vp-t" data-seek="{{ f.t }}">{{ '%d:%02d'|format((f.t // 60)|int, (f.t % 60)|int) }}</button> {{ f.category or 'nothing detected' }}</figcaption></figure>{% endif %}{% endfor %}</div>{% endif %}
+  {% set gps = v.gps %}{% if gps %}{% set g = gps[0] %}<h4>GPS while recording <span class="mut sm">(optional, not verified)</span></h4>
+  <p class="sm">{{ gps|length }} location fix{{ 'es' if gps|length > 1 }} · first at {{ '%.5f'|format(g.lat) }}, {{ '%.5f'|format(g.lng) }}{% if g.acc %} (±{{ g.acc|round|int }} m){% endif %} · <a href="https://www.openstreetmap.org/?mlat={{ g.lat }}&mlon={{ g.lng }}#map=18/{{ g.lat }}/{{ g.lng }}" target="_blank" rel="noopener">Open map</a></p>{% endif %}
+</section>
+{% endfor %}

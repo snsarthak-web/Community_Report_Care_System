@@ -1,0 +1,14 @@
+{% extends "app_base.html" %}
+{% set bg = 'bg-admin.jpg' %}
+{% block heading %}Settings{% endblock %}
+{% block content %}
+<div class="formgrid"><form class="card" method="post">{{ csrf_input() }}<input type="hidden" name="action" value="name"><h3>Admin profile</h3><label>Email</label><input class="form-control" value="{{ current_user.email }}" disabled><label>Name</label><input class="form-control" name="name" value="{{ current_user.name }}" required><button class="btn btn-primary mt-3">Save</button></form>
+  <form class="card" method="post">{{ csrf_input() }}<input type="hidden" name="action" value="password"><h3>Change password</h3><label>Current password</label><input class="form-control" type="password" name="old" required><label>New password <em>(10+ characters)</em></label><input class="form-control" type="password" name="new" minlength="10" required><label>Confirm</label><input class="form-control" type="password" name="confirm" required><button class="btn btn-primary mt-3">Update password</button></form>
+<form class="card" method="post">{{ csrf_input() }}<input type="hidden" name="action" value="new_admin"><h3>Add administrator</h3><p class="mut sm">Only existing administrators can create admin accounts. Citizens cannot register as admins.</p>
+  <label>Name</label><input class="form-control" name="name" required><label>Email</label><input class="form-control" type="email" name="email" required><label>Password <em>(10+ characters)</em></label><input class="form-control" type="password" name="new" minlength="10" required>
+  <label>Your password (to confirm)</label><input class="form-control" type="password" name="old" required><button class="btn btn-primary mt-3">Create administrator</button>
+  <hr><b class="sm">Current administrators</b>{% for a in admins %}<div class="sm">{{ a.name }} · {{ a.email }}</div>{% endfor %}</form></div>
+<section class="card" style="margin-top:18px"><h3>📝 Admin activity log</h3><div class="table-responsive"><table class="tbl"><thead><tr><th>When (UTC)</th><th>Admin</th><th>Action</th><th>Complaint</th><th>Details</th></tr></thead><tbody>
+{% for l in logs %}<tr><td>{{ l.created_at|dt }}</td><td>{{ l.admin.name if l.admin else '-' }}</td><td>{{ l.action }}</td><td>{% if l.complaint %}<a class="tid" href="{{ url_for('admin.detail', tid=l.complaint.tracking_id) }}">{{ l.complaint.tracking_id }}</a>{% else %}-{% endif %}</td><td>{{ l.details }}</td></tr>
+{% else %}<tr><td colspan="5" class="empty">No activity yet.</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

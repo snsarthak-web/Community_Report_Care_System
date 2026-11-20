@@ -1,0 +1,3 @@
+{% set cur = stages.index(c.status) %}
+<div class="stepper">{% for st in stages %}<div class="{{ 'done' if loop.index0 <= cur }} {{ 'now' if loop.index0 == cur }}"><span>{{ '✓' if loop.index0 < cur or (c.status == 'Resolved' and loop.index0 == cur) else loop.index }}</span><small>{{ st }}</small></div>{% endfor %}</div>
+<ol class="timeline">{% for h in hist|reverse %}<li><b>{{ h.new_status }}</b><small>{{ h.created_at|dt }}{% if h.author %} · {{ h.author.name }}{% endif %}</small>{% if h.note %}<p>{{ h.note }}</p>{% endif %}</li>{% endfor %}</ol>

@@ -1,0 +1,32 @@
+{% extends "app_base.html" %}
+{% from "citizen/_ui.html" import ico, rc_hero %}
+{% set bg = 'bg-dashboard.jpg' %}
+{% block heading %}Profile &amp; Settings{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/report.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}"><script>document.documentElement.classList.add('js')</script>{% endblock %}
+{% block hero %}<div class="aurora" aria-hidden="true"><img class="aur-img" src="{{ url_for('static', filename='img/bg-profile.jpg') }}" alt="" onerror="this.remove()"><i></i><i></i><i></i></div>{{ rc_hero('Profile & Settings', 'Manage your details and keep your account secure.', 'Your account', slim=True) }}{% endblock %}
+{% block content %}
+<div class="pf-grid">
+  <aside class="card v2 pf-side">
+    <div class="pf-av" aria-hidden="true">{{ (current_user.name or '?')[:1]|upper }}</div>
+    <h2>{{ current_user.name }}</h2><span class="pf-role">{{ ico('shield') }} Citizen</span>
+    <ul class="pf-info">
+      <li>{{ ico('mail') }}<span><small>Email</small>{{ current_user.email or 'Not set' }}</span></li>
+      <li>{{ ico('phone') }}<span><small>Mobile (OTP login)</small>{{ ('+91 ' ~ current_user.phone) if current_user.phone else 'Not set' }}</span></li>
+      <li>{{ ico('calendar') }}<span><small>Member since</small>{{ current_user.created_at|d if current_user.created_at else '—' }}</span></li>
+    </ul>
+  </aside>
+  <div class="pf-main">
+    <form class="card v2" method="post">{{ csrf_input() }}<input type="hidden" name="action" value="name"><h3><span class="ti">{{ ico('user') }}</span>Your details</h3>
+      <label>Email</label><div class="fld">{{ ico('mail') }}<input class="form-control" value="{{ current_user.email or 'Not set (phone-only account)' }}" disabled></div>
+      <label>Name</label><div class="fld">{{ ico('user') }}<input class="form-control" name="name" value="{{ current_user.name }}" required maxlength="60"></div>
+      <label>Mobile number <em>(for OTP login)</em></label><div class="fld">{{ ico('phone') }}<input class="form-control" name="phone" value="{{ current_user.phone or '' }}" inputmode="numeric" maxlength="10"></div>
+      <button class="btn btn-primary">Save {{ ico('check') }}</button></form>
+    <form class="card v2" method="post">{{ csrf_input() }}<input type="hidden" name="action" value="password"><h3><span class="ti o">{{ ico('lock') }}</span>Change password</h3>
+      <label>Current password</label><div class="fld">{{ ico('key') }}<input class="form-control" type="password" name="old" required autocomplete="current-password"></div>
+      <label>New password</label><div class="fld">{{ ico('lock') }}<input class="form-control" type="password" name="new" minlength="8" required autocomplete="new-password"></div><div class="pw-meter"><i></i></div><div class="pw-hint" aria-live="polite"></div>
+      <label>Confirm new password</label><div class="fld">{{ ico('lock') }}<input class="form-control" type="password" name="confirm" required autocomplete="new-password"></div>
+      <button class="btn btn-primary">Update password {{ ico('arrow') }}</button></form>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/pages.js') }}" defer></script>{% endblock %}
