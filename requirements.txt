@@ -6,5 +6,9 @@ Werkzeug>=3.0
 python-dotenv>=1.0
 Pillow>=10.0
 opencv-python-headless>=4.8
-# AI models: the five YOLO checkpoints in ai/models/ (see README section 3). Needed for AI + video detection:
-# ultralytics
+
+# Production server
+gunicorn>=22.0
+
+# YOLO AI models
+ultralytics
